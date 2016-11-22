@@ -1,0 +1,338 @@
+In db...
+- deleted the constraint in the tbl_surveys table: ALTER TABLE mytable DROP FOREIGN KEY mytable_ibfk_1 ; <-- where mytable_ibfk_1  is replaced with actual foreign key name
+- then deleted the index
+- set the default value on supervised_by_id to be null: update tbl_surveys SET supervised_by_user_ID =  NULL
+
+User: 			corrbrot	
+FTP Password:	BT2G6EID@2.d
+
+db name: corrbrot_corrcheck
+db user: corrbrot_ccdbuse
+db padd: V*AiO{kVS-t1
+
+
+----------------------------------------------------------------
+
+Creating A Report - create-report.php
+-------------------------------------
+
+This file includes the usual header.php file.
+It then does an if statement to see if the submit button has been clicked.
+- if the submit button has been click the file then includes the output.php file...
+
+Output.php
+----------
+
+Output.php first of all connects to the config file then the conn file and then the setup_page_session file. 
+Then it pulls in the functions file and the other class files
+
+A check is then done to determine if the user is logged in or not and if not redirects to the login.php file
+
+Assuming all is well it creates a new uers object.
+
+---------
+Variables
+---------
+
+Variables are created and assigned via the _POST array.
+
+First of all the initial report details are captured (Type, reg, Company ID, etc).
+It also gets the details from the last page of the submitted survey.
+
+Some vars cannot be obtained from the _POST array so they are instead created in other ways:
+
+1. Completed By: This is obtained from the current logged in user session
+2. Supervised By: At this stage we are created a report (remember we are in create-report.php)
+3. Status ID: We ste this to 2 - this sets the status to pending.
+4. Date Last Update
+5. User Last Update
+
+The last two items above are captured via the current system date and the logged in user session
+
+$formatdate - this is a variable used to take the surveyDate and stores it in a format for the database to make use of.
+
+-------------------------------
+SQL: Inserting into tbl_surveys
+-------------------------------
+
+The first SQL statement creates a row in the tbl_surveys table based on the variables created above.
+
+Note also at this point we use lastInsertId() to get the survey ID which is later used in other SQL queries.
+
+--------------------------------
+Brake Performance & Tyre Threads
+--------------------------------
+
+An empty array is created. 
+We then loop through the _POST array. 
+If an array key begins with 'axle' and if it is not empty (we only want to record faults assuming all else is ok) we pass thay array key and the response into the empty array.
+
+This gives us an array of faults recorded for brakes and tyre threads.
+
+Next, a SQL query is created that will insert a row into tbl_survey_axle_responses for each recorded fault.
+- this query is executed for each entry in the array.
+
+Assuming all is well the db is populated with the recorded faults. If an error is encountered then an exception is thrown.
+
+---------------------
+MAIN SURVEY RESPONSES
+---------------------
+
+Again the _POST array is looped through. An IF statement searches for an keys that begin with one of the other vehicle survey sections.
+
+Each matching key that is found that does not have a status of satisfactory is stored in a new array with the key and the response.
+LOGIC: Every response is satisfactory by default. We do not need to record these. We want only those repsonses that record a fault. We then assume that anything that isn't a fault to be satisfactory. This allows us to save space in the database.
+
+As before a SQL query is created.
+This query updates the tbl_survey_responses table with teh entries in the new array.
+An exception is thrown if any errors are encountered.
+
+--------------
+Final redirect
+--------------
+
+Assuming that we make it this far we can assume all to be well inserting the new survey details into the database. 
+
+- report-management.php is then loaded with a query string of message=success. 
+- This then shows a success message on the report management page.
+
+------------------------------------------------------------------------------------------
+
+
+---------------
+Saving A Report
+---------------
+
+If a report is to be saved we want all of the above to happen. However we need to be careful:
+
+If a report is being created for the first time, and is beind saved, we want the 'completed by' details to be for that user.
+If a report is being edit by another user (meaning it has a status of draft or pending) we want it to use the user ID of the original 'completed by' user and not the currently logged in user!
+
+We also want the user to stay on the same page, namely the report itself with a message indicating that it has been saved!
+
+LOGIC:
+
+create-report.php is only ever used to create a report
+- therefore the following is only ever going to be true:
+
+1. A new report has just been created, give this a status of 'draft' and insert records into the database.
+2. A new report is in the process of being created and save has been click at least once - therefore records already exist and so an update needs to occur with the 
+
+Note that WordPress, when creating a new post and it is saved, reloads the post in a different file. 
+A new post uses: post-new.php
+When saved the url changes to show: post.php
+
+Therefore, apply a similar logic here 
+
+- if save is clicked
+- load output.php - create all the entries as if creating a new report with a status of pending.
+
+At the end do not go to report-management.php
+- redirect to edit-report.php with a query string that is the current report ID.
+
+
+NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+THIS NEEDS ADDED: IF A REPORT IS BEING SAVED (AND NOT SUBMITTED) THE STATUS SHOULD BE SET TO DRAFT (ID: 1)
+
+NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+--------------------------------------------------------------------------------------------
+
+
+
+----------------
+Editing A Report
+----------------
+
+If we are actually editting a report then we need to load the survey as it is loaded in create-report.php
+
+There will be some repetition here that may need be be caught and tidied up.
+
+First check to see if a survey ID has been passed to the page
+- If not then you've no business being here so move on...
+... if the user is a valid user and is logged in then redirect to report-management.php
+.... if the user is not a valid user then redirect him
+..... the last two steps above are straight forward and are used throughout the site
+
+
+
+
+
+
+
+
+******** ADD REST OF EDITING LOGIC HERE.... ***********
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------
+
+
+Building The Report
+-------------------
+
+Going back to create-report.php, after the if submit check is done and if there is no form being submitted then the file goes ahead and loads the form itself.
+
+
+----------
+Navigation
+----------
+
+The first thing is the form navigation (this can be put into an includes file as it will be used on edit-report.php as well).
+
+Next the create_corrCheck() function is called. This was one of the earliest pieces of functionality developed for the site, way before classes were introduced, and as such is perhaps not the most elegent means of going about doing this.
+- it is something that could be revisisted down the line a refactoring exercise.
+
+----------------------------
+Function: create_corrCheck()
+Location: build_sections.php
+----------------------------
+
+This function builds the vehicle inspection form. It begins by creating the opening <form> tag.
+
+# method = post
+# action - itself (namely the page calling the form)
+
+A function is used to build each individual section of the report and are shown below. After each of the section functions has been called two buttons are created:
+
+1. Submit Report: this is clicked when the report is ready to be submitted for review
+
+[NOTE] the submit button should only shown if a report is NEW or is being edited with a status of DRAFT. When submit report is clicked the report is given a status of pending. Once a report has a status of pending we only want this to change to completed when a user has marked it as completed. 
+= if current survey status = pending : do not show submit report button
+
+2. Save report: this is clicked when the report needs to be saved. A report can be saved if it has a status of draft, pending or completed.
+
+[NOTE] When 'save' is clicked the status of the report should not change
+
+
+**** NOT YET SHOW AND ONLY A THOUGHT AT THIS STAGE ****
+A 'complete report' button might be included that shows is the logged in user has the ability to do so and if the status of the report is pending.
+
+
+---------------
+Report Sections
+---------------
+
+All report sections begin and end with the opening and closing fieldset tags for that section.
+Each then has a H2 for the section heading
+Finally the questions themselves are contained within a div with a class of section-questions
+
+-------------------------------------------------
+Function: 	create_corrCheck_Vehicle_Details($db)
+Location: build_sections.php
+-------------------------------------------------
+
+Queries tbl_questions where the section id = 1 and orders by question_seqno ascending.
+
+Loops through returned results and echoes to the page
+- creates the following for each row:
+
+1. Question Text
+2. Question ID 
+3. Question Name: made up of 'veh_dets_' and the id of the question
+4. Question Type
+5. IND Required
+
+
+
+------------------------------------------
+Function: create_corrCheck_Brake_Perf($db)
+Location: build_sections.php
+------------------------------------------
+
+This section requires 40 fields so rather than add these to the database they will be built dynamically here.
+The answers will be written to the database in a table called tbl_brake_performces. 
+
+A variable is created to hold the current axle number.
+
+A for loop is used that reiterates 10 times
+- For each time through the loop a div is created with a class of panel and panel-primary (from bootstrap)
+- Each "panel" gets a panel heading: the current axle number is outputted here
+
+- Some more bootstrap stuff happens to build the container for the form fields
+- A panel-collapse div is created and then a panel-body
+- 4 form-groups are created
+-- each form-group contains a label where
+-- then a div with a class of col-sm-4 (bootstrap grid)
+--- the div then contains an input
+--- the input has a name as follows: axle_ + $axle_no + one of the following:
+															- _service_bk_dec
+															- _service_bk_imb
+															- _parking_bk_dec
+															- _parking_bk_imb
+
+Each form element here begins with "axle_"
+
+-------------------------------------------
+Function: create_corrCheck_Tyre_Thread($db)
+Location: build_sections.php
+-------------------------------------------
+
+This section is created in a similar fashion as above (note that this panel behaves differently than the previous one so might need to examine the code if an issue is raised - which it no doubt will be).
+
+Each input here has a name as follows: axle_ + $axle_no + one of the following:
+																- _inner_near
+																- _inner_off
+																- _outer_near
+																- _outer_off
+
+
+-------------------------------------------
+Function: create_corrCheck_Lub($db)
+Location: build_sections.php
+-------------------------------------------
+
+A query is made to tbl_questions this time passing in the section id as a variable
+- the section id variable is assigned within this function
+- a section class variable is also created that will be used in dynamically building the field ID's and names
+
+
+The same vatiables are created as before with the addition of a ind_trailers variable.
+- this is used because from this point on we only want to show questions based on the vehicle type selected on the first page
+-- questions that are not for trailers are given a class of not_trailers and css is used to hide them
+
+
+
+-------------------------------------------
+Function: create_corrCheck_Lights($db), create_corrCheck_Tachograph($db), create_corrCheck_InsideCab($db), create_corrCheck_GroundLevel($db), create_corrCheck_SmallService($db), create_corrCheck_Additional($db)
+Location: build_sections.php
+-------------------------------------------
+
+All of the above sections create variables for:
+1. section id
+2. section class
+
+And the make a call to get_standard_section and pass these in
+- yes, yes, it would have made sense to create and array and pass that in!!
+
+
+-------------------------------------------
+Function: create_corrCheck_Rep_Details($db)
+Location: build_sections.php
+-------------------------------------------
+
+The last section of the report only has a single field and that is to collect the Notes for the report. 
+It contains a lot of commented php from an earlier draft of the function where it was thought that more fields would need to be completed. It was later found that these fields need to be populated dynamically based on user sessions and system dates.
+
+
+-------------------------------------------
+Function: get_standard_section($db, $section_id, $section_class)
+Location: build_sections.php
+-------------------------------------------
+
+This function is a kind of generic call to the database that queries a sepecific subsection of the tbl_questions table and then outputs the form elements based on that and the passed section class.
+
+This function also checks for ind_trailers and adds a not_trailers class to those that match it.
+
+
+
+
+

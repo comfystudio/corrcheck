@@ -1,0 +1,197 @@
+@import url("bootstrap.min.css");
+
+/* ========== Custom Styles ========== */
+
+html,
+body {
+	margin:0;
+	padding:0;
+	height:100%;
+}
+
+hr {
+	border-top:1px solid #bcbdc0;
+}
+
+a {
+	color:white;
+}
+
+a:hover {
+	color:white;
+	text-decoration: underline;
+}
+
+.nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
+}
+
+/* ========== NAVIGATION ========== */
+
+.main-nav {
+	display: table;
+	list-style-type: none;
+	padding:0;
+	margin:0;
+	width: 100%;
+}
+
+.main-nav li {
+	display: table-row;
+	list-style-type: none;
+	border-bottom:1px solid white;
+}
+
+.main-nav li a {
+	display: table-cell;
+	padding:25px 15px;
+	text-align: center;
+	font-size: 16px;
+	border-bottom:1px solid #cfcfcf;
+}
+
+.main-nav li a:hover {
+	background: #9d9fa3;
+	text-decoration: none;
+}
+
+
+/* ========= CONTAINERS ========== */
+
+
+.container {
+	background:#bcbdc0;	
+	min-height: 100%;
+	position: relative;
+}
+
+/* Header */
+.header {
+	background: #939598;
+	color:white;
+}
+
+
+/* Main Content Area (includes side nav) */
+.app-main-content {
+	padding-bottom:px;   /* Height of the footer element */
+}
+
+/* Footer */
+.site-footer {
+	border-top:1px solid #666;
+	color: white;
+	background: #939598;
+	width:100%;
+	height:40px;
+	position:absolute;
+	bottom:0;
+	padding:10px 0;
+	
+
+}
+
+.app-acc-dets {
+	background:#6d6e70;	
+}
+
+.app-acc-dets ul {
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+/* Content */
+.app-col-main {
+	background: #e7e7e8;	
+	padding-bottom:55px;
+	padding-top:15px;
+}
+
+.section-questions {
+	background: white;	
+	padding:20px;
+	margin-bottom:20px;
+}
+
+.section-questions .form-control {
+	background: #e7e7e8;
+}
+
+
+/* Sidebar */
+
+
+/* Col-main */
+
+.panel-primary>.panel-heading {
+	
+	
+}
+.panel-primary {
+	
+}
+
+
+.panel-title a {
+	display: block;
+}
+
+.panel .alert {
+	margin-top:15px;
+}
+
+.form-horizontal .control-label{
+	/* text-align:right; */
+	/*text-align:left;	*/
+}
+
+.group_details, .rect_by {
+	display: none;
+}
+
+/* ========== Form Navigation ========== */
+.btn-section-nav {
+	width:16%;
+	margin-top:10px;
+}
+
+.corr-report .rep-section {
+	display:none;
+}
+
+.control-label  {
+	/*background: yellow;*/
+}
+
+/* ========== Form Colour Codes ========== */
+
+/* Green */
+.has-success .form-control {
+	background: #eaf6e2;
+	color:#3c763d;
+}
+
+/* Orange */
+.has-warning .form-control {
+	background: #fff9df;
+	color:#8a6d3b;
+}
+
+/* Red */
+.has-error .form-control {
+	background: #ffe5e6;
+	color:#a94442;
+}
+
+.section-questions .error {
+	color:red;
+	font-style:"italic"
+}
+
+/* ========== TABLES ========== */
+
+thead tr {
+	background-color: #666;
+	color:white;
+}
