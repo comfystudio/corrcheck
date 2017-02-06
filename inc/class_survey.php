@@ -26,6 +26,10 @@ class Survey {
 	var $preServiceRemarks;
 	var $notesPartsList;
 	var $surveyStatus;
+    var $scheduled;
+    var $psv;
+    var $psvPresented;
+    var $psvNotes;
 
 	// Other Details
 	var $completedByID;
@@ -75,7 +79,11 @@ class Survey {
 			$this->odoType 			 = $this->surveyDetailsArray["odo_type"];
 			$this->preServiceRemarks = $this->surveyDetailsArray["pre_service_remarks"];
 			$this->notesPartsList 	 = $this->surveyDetailsArray["notes_parts_list"];
-			$this->surveyStatus 	 = $this->surveyDetailsArray["survey_status"];			
+			$this->surveyStatus 	 = $this->surveyDetailsArray["survey_status"];
+            $this->scheduled         = $this->surveyDetailsArray["scheduled"];
+            $this->psv               = $this->surveyDetailsArray["psv"];
+            $this->psvPresented      = $this->surveyDetailsArray["psv_presented"];
+            $this->psvNotes          = $this->surveyDetailsArray["psv_notes"];
 
 			// Gat and Format the date
 			$date = DateTime::createFromFormat('Y-m-d', $this->surveyDetailsArray["survey_date"]);			
@@ -117,7 +125,11 @@ class Survey {
 			$this->odoType 			 = $this->printSurveyDetails("veh_dets_17");  
 			$this->preServiceRemarks = $this->printSurveyDetails("veh_dets_18");  
 			$this->notesPartsList 	 = $this->printSurveyDetails("rep_dets_notes");
-			$this->surveyStatus 	 = $this->printSurveyDetails("surveystatus");  
+			$this->surveyStatus 	 = $this->printSurveyDetails("surveystatus");
+            $this->scheduled         = $this->printSurveyDetails("scheduled");
+            $this->psv               = $this->printSurveyDetails("psv");
+            $this->psvPresented      = $this->printSurveyDetails("psv_presented");
+            $this->psvNotes          = $this->printSurveyDetails("psv_notes");
 
 			// Get the axle responses for this survey
 			$this->surveyAxleResponses = $this->getAxleResponses();
@@ -126,7 +138,6 @@ class Survey {
 			$this->surveyResponses = $this->getSurveyResponses();
 
 		} // end if
-
 
    	} // close constructor
 
@@ -443,7 +454,26 @@ class Survey {
 
 		  <div class="section-questions">
 
-		  	<?php   
+		  	<?php
+                // Need to get vehicles for Vehicle reg field
+                $query = "
+                SELECT
+                    t1.reg
+                FROM tbl_vehicles t1
+                WHERE t1.is_active = 1
+                ORDER BY t1.reg ASC
+            ";
+                try {
+                    // These two statements run the query against your database table.
+                    $stmt = $this->db->prepare($query);
+                    $stmt->execute();
+                } catch (PDOException $ex) {
+                    // Note: On a production website, you should not output $ex->getMessage().
+                    // It may provide an attacker with helpful information about your code.
+                    die("Failed to run query: " . $ex->getMessage());
+                }
+                // Finally, we can retrieve all of the found rows into an array using fetchAll
+                $vehicles = $stmt->fetchAll();
 
 			  	// where section_ID = 1 
 				try {
@@ -509,7 +539,29 @@ class Survey {
 
 			          </select>
 
-			        <?php }  
+                    <?php } // Vehicle Registration
+                    elseif($question_id == 12){?>
+                        <select id="<?php echo $question_name; ?>" name="<?php echo $question_name; ?>" class="selectpicker" data-width="180px">
+                            <?php foreach($vehicles as $key => $vehicle){?>
+                                <option value="<?php echo $vehicle['reg'] ?>" <?php $this->isDetailSelected($question_name, $vehicle['reg']); ?>> <?php echo $vehicle['reg']?></option>
+                            <?php } ?>
+                        </select>
+                        <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success" title = "add a vehicle"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                    <?php } // PSV Inspection?
+                    elseif($question_id == 175){?>
+                        <label class="switch">
+                            <input type="hidden" name="<?php echo $question_name ?>" value="0">
+                            <input type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1" <?php if(isset($question_name) && $this->getValue($question_name) == 1){echo "checked";}?>>
+                            <div class="slider round"></div>
+                        </label>
+                        <label class = "right-hand-label">PSV</label>
+                    <?php }
+                    elseif($question_id == 176){ ?>
+                        <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="form-control">
+                            <option value="customer" <?php $this->isDetailSelected($question_name, "customer"); ?>>Customer</option>
+                            <option value="corr brothers" <?php $this->isDetailSelected($question_name, "corr brothers"); ?>>Corr Brothers</option>
+                        </select>
+                    <?php }
 
 			        elseif($question_type == "Date"){ // If question is a date field ?>   
 			          <input type="input" class="form-control date-input form-control datepicker" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" data-date-format="dd-mm-yyyy" value="<?php echo $this->surveyDate; ?>" required value="<?php echo $this->surveyDate; ?>">   
@@ -536,9 +588,13 @@ class Survey {
 			          <input type="text" class="form-control form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required value="<?php $this->getValue($question_name); ?>">  
 			        <?php } 
 
-			        elseif($question_type == "Textarea"){ ?>          
-			          <textarea name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" rows="6" class="form-control"><?php $this->getValue($question_name); ?></textarea>
-			        <?php } ?>
+			        elseif($question_type == "Textarea"){ ?>
+                        <textarea name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" rows="6" class="form-control"><?php $this->getValue($question_name); ?></textarea>
+			        <?php }elseif($question_type == "Checkbox"){ ?>
+                        <!-- We Use a hidden one so we do not get flagged for null value on submit -->
+                        <input class="form-control" type="hidden" name="<?php echo $question_name ?>" value="0">
+                        <input class="form-control" type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>"  value="1" <?php if(isset($question_name) && $this->getValue($question_name) == 1){echo "checked";}?>>
+                    <?php } ?>
 
 			      </div><!-- close col-sm-10 -->
 
@@ -576,6 +632,35 @@ class Survey {
 	    <h2>Brake Performance</h2>
 
 	    <div class="panel-group" id="accordion">
+            <!-- start panel -->
+            <div class="panel panel-primary">
+                <div class = "row">
+                    <div class = "col-md-3 col-md-offset-3">
+                        <strong>Service Break</strong>
+                    </div>
+
+                    <div class = "col-md-4 col-md-offset-2">
+                        <strong>Parking Break</strong>
+                    </div>
+                </div>
+
+                <div class = "row">
+                    <div class = "col-md-2 col-md-offset-2">
+                        <p>DEC(%)</p>
+                    </div>
+
+                    <div class = "col-md-3">
+                        <p>IMB(%)</p>
+                    </div>
+
+                    <div class = "col-md-2">
+                        <p>DEC(%)</p>
+                    </div>
+
+                    <div class = "col-md-3">
+                        <p>IMB(%)</p>
+                    </div>
+                </div>
 
 	    <?php
 
@@ -583,83 +668,49 @@ class Survey {
 
 	    for($count=1;$count<11;$count++): ?>
 
-	    <?php
+            <?php
 
-	    	// Axle No. Service Brake DEC Name
-	    	$service_bk_dec = "axle_" . $axle_no . "_service_bk_dec";
-	    	// Axle No. Service Brake IMB Name
-	    	$service_bk_imb = "axle_" . $axle_no . "_service_bk_imb";
-	    	// Axle No. Parking Brake DEC Name
-	    	$parking_bk_dec = "axle_" . $axle_no . "_parking_bk_dec";
-	    	// Axle No. Parking Brake IMB Name
-	    	$parking_bk_imb = "axle_" . $axle_no . "_parking_bk_imb";
+                // Axle No. Service Brake DEC Name
+                $service_bk_dec = "axle_" . $axle_no . "_service_bk_dec";
+                // Axle No. Service Brake IMB Name
+                $service_bk_imb = "axle_" . $axle_no . "_service_bk_imb";
+                // Axle No. Parking Brake DEC Name
+                $parking_bk_dec = "axle_" . $axle_no . "_parking_bk_dec";
+                // Axle No. Parking Brake IMB Name
+                $parking_bk_imb = "axle_" . $axle_no . "_parking_bk_imb";
 
-	    ?>
+            ?>
 
-	    <!-- start panel -->
-	    <div class="panel panel-primary">
-	    
-	    	<!-- panel heading -->
-	    	<div class="panel-heading">
-	    		<h2 class="panel-title">
-	    			<a data-toggle="collapse" data-parent="#accordion" href="#collapse<?php echo $count; ?>">
-	    				Axle <?php echo $count; ?>
-	    			</a>
-	    		</h2>
-	    	</div><!-- end heading -->
+            <div class="form-group">
+                <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-md-2 control-label">Axle <?php echo $axle_no ?></label>
 
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_dec" id="axle_<?php echo $axle_no; ?>_service_bk_dec"
+                    value="<?php $this->getAxleValue($service_bk_dec); ?>">
+                </div>
 
-		    <div id="collapse<?php echo $count; ?>" class="bk_perf_axle_<?php echo $axle_no; ?> panel-collapse collapse">
-		    	<div class="panel-body">	    		
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_imb" id="axle_<?php echo $axle_no; ?>_service_bk_imb"
+                    value="<?php $this->getAxleValue($service_bk_imb); ?>">
+                </div>
 
-		      <div class="form-group">
-		        <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Service Brake DEC(%)</label>
-		        <div class="col-sm-4">
-		        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_dec" id="axle_<?php echo $axle_no; ?>_service_bk_dec" 
-		        	value="<?php $this->getAxleValue($service_bk_dec); ?>"> 
-		        </div>
-		      </div><!-- row -->
+                <div class="col-md-2 col-md-offset-1">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_dec" id="axle_<?php echo $axle_no; ?>_parking_bk_dec"
+                    value="<?php $this->getAxleValue($parking_bk_dec); ?>">
+                </div>
 
-		      <div class="form-group">
-		        <label for="axle_<?php echo $axle_no; ?>_service_bk_imb" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Service Brake IMB(%)</label>
-		        <div class="col-sm-4">
-		        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_imb" id="axle_<?php echo $axle_no; ?>_service_bk_imb" 
-		        	value="<?php $this->getAxleValue($service_bk_imb); ?>">  
-		        </div>
-		        
-	          
-		      </div>
-
-		      <div class="form-group">
-		        <label for="axle_<?php echo $axle_no; ?>_parking_bk_dec" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Parking Brake DEC(%)</label>
-		        <div class="col-sm-4">
-		        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_dec" id="axle_<?php echo $axle_no; ?>_parking_bk_dec" 		        	
-		        	value="<?php $this->getAxleValue($parking_bk_dec); ?>">
-		        </div>
-		        
-	                               
-		      </div>
-
-		      <div class="form-group">
-		        <label for="axle_<?php echo $axle_no; ?>_parking_bk_imb" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Parking Brake IMB(%)</label>
-		        <div class="col-sm-4">
-		        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_imb" id="axle_<?php echo $axle_no; ?>_parking_bk_imb" 		        	
-		        	value="<?php $this->getAxleValue($parking_bk_imb); ?>">
-		        </div>
-		      </div>
-
-		      <div class="alert alert-info" role="alert">
-	        	<strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
-	      	</div>
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_imb" id="axle_<?php echo $axle_no; ?>_parking_bk_imb"
+                    value="<?php $this->getAxleValue($parking_bk_imb); ?>">
+                </div>
+            </div>
 
 		    <?php $axle_no++; ?>
-		      
-		    </div><!-- panel-body -->
-		   </div><!-- panel-collapse -->
-
-		</div><!-- close panel -->
 
 	    <?php endfor; ?>
+            <div class="alert alert-info" role="alert">
+                <strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
+            </div>
 
 		</div><!-- close panel-group -->
 
@@ -678,6 +729,35 @@ class Survey {
 	    <h2>Tyre Thread Remaining</h2>
 
 	    <div class="panel-group" id="accordion">
+            <!-- start panel -->
+            <div class="panel panel-primary">
+                <div class = "row">
+                    <div class = "col-md-3 col-md-offset-3">
+                        <strong>Near Side</strong>
+                    </div>
+
+                    <div class = "col-md-4 col-md-offset-2">
+                        <strong>Off Side</strong>
+                    </div>
+                </div>
+
+                <div class = "row">
+                    <div class = "col-md-2 col-md-offset-2">
+                        <p>Outside</p>
+                    </div>
+
+                    <div class = "col-md-3">
+                        <p>Inside</p>
+                    </div>
+
+                    <div class = "col-md-2">
+                        <p>Inside</p>
+                    </div>
+
+                    <div class = "col-md-3">
+                        <p>Outside</p>
+                    </div>
+                </div>
 
 	    <?php
 
@@ -685,96 +765,48 @@ class Survey {
 
 	    for($count=1;$count<11;$count++): ?>
 
-	   	<?php
+            <?php
 
-	  		// Axle No. INNER Near Side (mm)
-	  		$inner_near = "axle_" . $axle_no . "_inner_near";
-			// Axle No. INNER Off Side (mm)
-			$inner_off = "axle_" . $axle_no . "_inner_off";
-			// Axle No.  OUTER Near Side (mm)
-			$outer_near = "axle_" . $axle_no . "_outer_near";
-			// Axle No. OUTER Off Side (mm)
-			$outer_off = "axle_" . $axle_no . "_outer_off";
+                // Axle No. INNER Near Side (mm)
+                $inner_near = "axle_" . $axle_no . "_inner_near";
+                // Axle No. INNER Off Side (mm)
+                $inner_off = "axle_" . $axle_no . "_inner_off";
+                // Axle No.  OUTER Near Side (mm)
+                $outer_near = "axle_" . $axle_no . "_outer_near";
+                // Axle No. OUTER Off Side (mm)
+                $outer_off = "axle_" . $axle_no . "_outer_off";
 
-	    ?>
+            ?>
 
-	    <!-- start panel -->
-	    <div class="panel panel-primary">
+            <div class="form-group">
+                <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-md-2 control-label">Axle <?php echo $axle_no ?></label>
 
-	    	<!-- panel heading -->
-	    	<div class="panel-heading">
-	    		<h2 class="panel-title">
-	    			<a data-toggle="collapse" data-parent="#accordion" href="#tyre-thread-collapse-<?php echo $count; ?>">    
-	    				Axle <?php echo $count; ?>
-		    		</a>
-	    		</h2>
-	    	</div><!-- close heading -->
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_near" id="axle_<?php echo $axle_no; ?>_outer_near"
+                           value="<?php $this->getAxleValue($outer_near); ?>">
+                </div>
 
-	    	<div id="tyre-thread-collapse-<?php echo $count; ?>" class="bk_perf_axle_<?php echo $axle_no; ?> panel-collapse collapse">
-		    	<div class="panel-body">
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_near" id="axle_<?php echo $axle_no; ?>_inner_near"
+                           value="<?php $this->getAxleValue($inner_near); ?>">
+                </div>
 
-				    <div class="tyre_thread_axle_<?php echo $axle_no; ?>">
-				      
-				      <?php // ********** Axle 1 INNER Near Side (mm) ?>
-				      <div class="form-group">
-				        
-				        <label for="axle_<?php echo $axle_no; ?>_inner_near" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> INNER Near Side (mm)</label>	
-				        <div class="col-sm-4">		        
-				        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_near" id="axle_<?php echo $axle_no; ?>_inner_near"
-				        	value="<?php $this->getAxleValue($inner_near); ?>">			        
-				        </div>
-				                
-				      </div>
+                <div class="col-md-2 col-md-offset-1">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_off" id="axle_<?php echo $axle_no; ?>_inner_off"
+                           value="<?php $this->getAxleValue($inner_off); ?>">
+                </div>
 
-				      <?php // ********** Axle 1 INNER Off Side (mm) ?>
-				      <div class="form-group">
-				        
-				        <label for="axle_<?php echo $axle_no; ?>_inner_off" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> INNER Off Side (mm)</label>
-				        <div class="col-sm-4">			        
-				        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_off" id="axle_<?php echo $axle_no; ?>_inner_off"
-				        	value="<?php $this->getAxleValue($inner_off); ?>"> 			        
-				        </div>
-				           
-				      </div>
+                <div class="col-md-2">
+                    <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_off" id="axle_<?php echo $axle_no; ?>_outer_off"
+                           value="<?php $this->getAxleValue($outer_off); ?>">
+                </div>
+            </div>
 
-
-				      <?php // ********** Axle 1 OUTER Near Side (mm) ?>
-				      <div class="form-group">
-				        
-				        <label for="axle_<?php echo $axle_no; ?>_outer_near" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> OUTER Near Side (mm)</label>
-				        <div class="col-sm-4">			        
-				        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_near" id="axle_<?php echo $axle_no; ?>_outer_near"
-				        	value="<?php $this->getAxleValue($outer_near); ?>"> 			        
-				        </div>
-				      
-				      </div>
-
-				      <?php // ********** Axle 1 OUTER Off Side (mm) ?>
-				      <div class="form-group">
-				        
-				        <label for="axle_<?php echo $axle_no; ?>_outer_off" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> OUTER Off Side (mm)</label>
-				        <div class="col-sm-4">			        
-				        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_off" id="axle_<?php echo $axle_no; ?>_outer_off"
-				        	value="<?php $this->getAxleValue($outer_off); ?>"> 			        
-				        </div>
-				       
-				      </div>
-
-				      <div class="alert alert-info" role="alert">
-			        	<strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
-			      	</div>
-
-	    			<?php $axle_no++; ?>
-
-	    		</div><!-- panel-body -->
-		   </div><!-- panel-collapse -->
-	      
-	    </div>
-
-	    </div><!-- close panel -->
-
+            <?php $axle_no++; ?>
 	    <?php endfor; ?>
-
+            <div class="alert alert-info" role="alert">
+                <strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
+            </div>
 	  	</div><!-- close panel-group -->
 
 	  </fieldset>
@@ -1201,6 +1233,9 @@ function get_standard_section($section_id, $section_class){
 		                </select>
 
 		            <?php break;
+                    case "Checkbox": ?>
+                      <input class="form-control" type="checkbox" name="<?php echo $question_name ?>" value="Yes" <?php if(isset($this->surveyResponses[$question_name]) && $this->surveyResponses[$question_name] == "Yes"){echo "checked";}?>>
+                    <?php break;
 
 		          } // end the switch         
 
@@ -1345,8 +1380,7 @@ function get_all_corr_users(){
  * @return [type]               [description]
  */
 function getValue($questionName){
-
-	// echo $questionName;	
+	// echo $questionName;
 
 	// This switch deals with survey details
 	switch($questionName){
@@ -1363,6 +1397,15 @@ function getValue($questionName){
 		case("veh_dets_18"):
 			echo $this->preServiceRemarks;
 			break;
+        case("veh_dets_174"):
+            return $this->scheduled;
+            break;
+        case("veh_dets_177"):
+            echo $this->psvNotes;
+            break;
+        case("veh_dets_175"):
+            return $this->psv;
+            break;
 
 	} // end switch
 
@@ -1399,6 +1442,12 @@ function isDetailSelected($inputName, $inputValue){
 		case "veh_dets_11":
 			$surveyResponse = "vehicle_type";
 			break;
+        case "veh_dets_12":
+            $surveyResponse = "vehicle_reg";
+            break;
+        case "veh_dets_176":
+            $surveyResponse = "psv_presented";
+            break;
 	}
 
 	// Only do something if the passed array key actually exists

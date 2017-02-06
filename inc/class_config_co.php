@@ -29,6 +29,9 @@ class Config_Company {
 	var $email;
 	var $telno;
 	var $faxno;
+    var $service_interval;
+    var $vehicle_permission;
+    var $is_active;
 
 	// Additional Email Addresses
 	var $add_email_2;
@@ -89,6 +92,9 @@ class Config_Company {
 			$this->email 		= "";
 			$this->telno 		= "";
 			$this->faxno 		= "";
+            $this->service_interval = "";
+            $this->vehicle_permission = "";
+            $this->is_active    = "";
 
 			$this->add_email_2 		= "";
 			$this->add_email_3 		= "";
@@ -139,7 +145,7 @@ class Config_Company {
 	      die("Failed to run THIS query: " . $ex->getMessage()); 
 	  } 
 
-	  $row = $stmt->fetch(); 		  
+	  $row = $stmt->fetch();
 	  
 	  $this->company_name = $row["company_name"];
 	  $this->addr_1 = $row["addr_1"];
@@ -149,6 +155,9 @@ class Config_Company {
 	  $this->email =  $row["email"];
 	  $this->telno = $row["telno"];        
 	  $this->faxno = $row["faxno"];
+      $this->service_interval = $row['service_interval'];
+      $this->vehicle_permission = $row['vehicle_permission'];
+      $this->is_active = $row['is_active'];
 
 	  $this->add_email_2 =  $row["email_2"];
 	  $this->add_email_3 =  $row["email_3"];
@@ -164,8 +173,7 @@ class Config_Company {
 
 
    	// Assign object properties based on passed array
-   	function assignVarsPost($post_array){   
-
+   	function assignVarsPost($post_array){
 		if (($this->edit_mode == "load_edit") || ($this->edit_mode == "post_edit")){
 			$this->company_id = $post_array["company_id"];
 		}
@@ -176,9 +184,12 @@ class Config_Company {
 	  	$this->postcode =  $post_array["postcode"];
 	  	$this->email = $post_array["email"];        
 	  	$this->telno = $post_array["telno"];        
-	  	$this->faxno = $post_array["faxno"];	  	
+	  	$this->faxno = $post_array["faxno"];
+        $this->service_interval = $post_array['service_interval'];
+        $this->vehicle_permission = $post_array['vehicle_permission'];
+        $this->is_active = $post_array['is_active'];
 
-	  	$this->add_email_2 = $post_array["add_email_2"];        
+        $this->add_email_2 = $post_array["add_email_2"];
 	  	$this->add_email_3 = $post_array["add_email_3"];        
 	  	$this->add_email_4 = $post_array["add_email_4"];        
 	  	$this->add_email_5 = $post_array["add_email_5"];        
@@ -201,9 +212,14 @@ class Config_Company {
 		$this->companyVarArray["addr_3"] = $this->addr_3;
 		$this->companyVarArray["postcode"] = $this->postcode;				
 		$this->companyVarArray["email"] = $this->email;
-		$this->companyVarArray["telno"] = $this->telno;	
+		$this->companyVarArray["telno"] = $this->telno;
+        $this->companyVarArray["faxno"] = $this->faxno;
+        $this->companyVarArray['service_interval'] = $this->service_interval;
+        $this->companyVarArray['vehicle_permission'] = $this->vehicle_permission;
+        $this->companyVarArray['is_active'] = $this->is_active;
 
-		$this->companyVarArray["add_email_2"] = $this->add_email_2;
+
+        $this->companyVarArray["add_email_2"] = $this->add_email_2;
 		$this->companyVarArray["add_email_3"] = $this->add_email_3;
 		$this->companyVarArray["add_email_4"] = $this->add_email_4;
 		$this->companyVarArray["add_email_5"] = $this->add_email_5;

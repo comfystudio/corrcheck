@@ -24,7 +24,10 @@ class Company_Form {
 	var $email; // Primary email address
 	var $telno;
 	var $faxno;
-	var $error_check;
+    var $service_interval;
+    var $vehicle_permission;
+    var $is_active;
+    var $error_check;
 	var $success_message;
 	var $form_type; // options are "new" or "edit" only!	
 
@@ -48,12 +51,11 @@ class Company_Form {
 
 	/* ========= CONSTRUCTOR ========= */
    	public function __construct($db, $company_vars, $form_type)
-   	{   		
-
+   	{
    		$this->db=$db;	 // Database object     		 	
         $this->form_type = $form_type;	        
 
-        $this->companyVarArray = $company_vars;   
+        $this->companyVarArray = $company_vars;
 
         $this->company_id 	= $company_vars["company_id"];
         $this->company_name = $company_vars["company_name"];
@@ -63,6 +65,10 @@ class Company_Form {
         $this->postcode 	= $company_vars["postcode"];
         $this->email 		= $company_vars["email"];
         $this->telno 		= $company_vars["telno"];
+        $this->faxno        = $company_vars['faxno'];
+        $this->service_interval = $company_vars['service_interval'];
+        $this->vehicle_permission = $company_vars['vehicle_permission'];
+        $this->is_active   = $company_vars['is_active'];
 
         $this->add_email_2 		= $company_vars["add_email_2"];   
         $this->add_email_3 		= $company_vars["add_email_3"];   
@@ -161,6 +167,14 @@ class Company_Form {
             $this->faxno = format_string($_POST['faxno']);         
         }
 
+        if(!empty($_POST['service_interval'])){
+            $this->service_interval = format_string($_POST['service_interval']);
+        }
+
+        if(!empty($_POST['vehicle_permission'])){
+            $this->vehicle_permission = format_string($_POST['vehicle_permission']);
+        }
+
         /* ============================================================ */
         // STAGE 2: Secondary Checks 
         // NOTE - these are repeated in processEditUserForm()
@@ -200,6 +214,9 @@ class Company_Form {
 		                    email = :email,
 		                    telno = :telno,
 		                    faxno = :faxno,
+		                    service_interval = :service_interval,
+		                    vehicle_permission = :vehicle_permission,
+		                    is_active = :is_active,
 		                    email_2 = :email_2,
 		                    email_3 = :email_3,
 		                    email_4 = :email_4,
@@ -223,6 +240,9 @@ class Company_Form {
 	                ':email' => $_POST['email'], 
 	                ':telno' => $_POST['telno'], 
 	                ':faxno' => $_POST['faxno'],
+                    ':service_interval' => $_POST['service_interval'],
+                    ':vehicle_permission' => $_POST['vehicle_permission'],
+                    ':is_active' => $_POST['is_active'],
 	                ':email_2' 		=>$_POST["add_email_2"],
 	                ':email_3' 		=>$_POST["add_email_3"],
 	                ':email_4' 		=>$_POST["add_email_4"],
@@ -248,6 +268,9 @@ class Company_Form {
 	                    email,
 	                    telno,
 	                    faxno,
+	                    service_interval,
+	                    vehicle_permission,
+	                    is_active,
 	                    email_2,
 						email_3, 
 						email_4, 
@@ -266,6 +289,9 @@ class Company_Form {
 	                    :email,
 	                    :telno,
 	                    :faxno,
+	                    :service_interval,
+	                    :vehicle_permission,
+	                    :is_active,
 	                    :email_2,
 						:email_3, 
 						:email_4, 
@@ -287,6 +313,9 @@ class Company_Form {
 	                ':email' 		=> $_POST['email'], 
 	                ':telno' 		=> $_POST['telno'], 
 	                ':faxno' 		=> $_POST['faxno'],
+                    ':service_interval' => $_POST['service_interval'],
+                    ':vehicle_permission' => $_POST['vehicle_permission'],
+                    ':is_active'    => $_POST['is_active'],
 	                ':email_2' 		=>$_POST["add_email_2"],
 	                ':email_3' 		=>$_POST["add_email_3"],
 	                ':email_4' 		=>$_POST["add_email_4"],
@@ -305,8 +334,8 @@ class Company_Form {
             try 
             { 
                 // Execute the query to create the user 
-                $stmt = $this->db->prepare($query); 
-                $result = $stmt->execute($query_params); 
+                $stmt = $this->db->prepare($query);
+                $result = $stmt->execute($query_params);
             } 
             catch(PDOException $ex) 
             { 
@@ -413,11 +442,34 @@ class Company_Form {
 		                </div>
 
 		                <div class="question_row cf form-group">
-		                    <label for="faxno" class="col-sm-3 control-label">Fax No.:</label>
-		                    <div class="col-sm-4">
-		                        <input type="text" class="form-control form-control" name="faxno" id="faxno" value="<?php echo $this->faxno; ?>" /> 
-		                    </div>
-		                </div>
+                            <label for="faxno" class="col-sm-3 control-label">Fax No.:</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control form-control" name="faxno" id="faxno" value="<?php echo $this->faxno; ?>" />
+                            </div>
+                        </div>
+
+                        <div class="question_row cf form-group">
+                            <label for="service_interval" class="col-sm-3 control-label">Service Interval (weeks):</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control form-control" name="service_interval" id="service_interval" value="<?php echo $this->service_interval; ?>" />
+                            </div>
+                        </div>
+
+                        <input type="hidden" class="form-control form-control" name="vehicle_permission" id="vehicle_permission" value="0"/>
+<!--                        <div class="question_row cf form-group">-->
+<!--                            <label for="vehicle_permission" class="col-sm-3 control-label">Vehicle Permission:</label>-->
+<!--                            <div class="col-sm-4">-->
+<!--                                <input type="checkbox" class="form-control form-control" name="vehicle_permission" id="vehicle_permission" value="1" --><?php //if(isset($this->vehicle_permission) && $this->vehicle_permission == 1){echo 'checked';}?><!--/>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+                        <input type="hidden" class="form-control form-control" name="is_active" id="is_active" value="2"/>
+                        <div class="question_row cf form-group">
+                            <label for="is_active" class="col-sm-3 control-label">Is Active?</label>
+                            <div class="col-sm-4">
+                                <input type="checkbox" class="form-control form-control" name="is_active" id="is_active" value="1" <?php if(isset($this->is_active) && $this->is_active == 1){echo 'checked="checked"';} ?>/>
+                            </div>
+                        </div>
 
 					</div><!-- close section-questions -->
 

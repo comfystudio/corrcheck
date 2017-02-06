@@ -39,17 +39,17 @@
 					<tr>
 						<td>
 							<?php $survey_id = $saved_row["survey_ID"];
-								echo  $survey_id;
+                                echo '<a href = "view-report.php?survey_id='.$saved_row["survey_ID"].'" style = "color:#428bca;">'.$saved_row["survey_ID"].'</a>';
 							?>
 						</td>
 						<td>
 							<?php  echo $saved_row["survey_date"]; ?>
 						</td>
 						<td>
-							<?php echo $saved_row["company_name"]; ?>
+                            <?php echo '<a href = "edit_company.php?company_id='.$saved_row['company_ID'].'" style = "color:#428bca;">'.$saved_row["company_name"].'</a>'; ?>
 						</td>
 						<td>
-							<?php echo $saved_row["vehicle_reg"]; ?>
+                            <?php echo '<a href = "vehicle-view.php?vehicle_id='.$saved_row["vehicle_id"].'" style = "color:#428bca;">'.$saved_row["vehicle_reg"].'</a>'; ?>
 						</td>
 						<td>
 							<?php echo $saved_row["username"]; ?>

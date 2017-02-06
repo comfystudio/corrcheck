@@ -1,106 +1,1 @@
-<?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/all-includes.php"); ?>
-<?php $user->redirect_customer(); ?>
-<?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/header-modified.php"); ?>
-
-<!-- app main column -->
-<?php $user->redirect_customer(); ?>
-
-<div class="app-col-main grid_12 alpha">  
-
-	<h2>User Management</h2>
-
-	<?php // $user->userGreating(); ?>
-
-	<?php
-
-		// Do DB Query
-		 $query = " 
-	                SELECT 
-	                	tbl_users.user_id,
-			        	tbl_users.username,
-			        	tbl_users.first_name,
-			        	tbl_users.last_name,
-		                tbl_users.email,
-			        	tbl_user_roles.role as role_name,
-		                tbl_companies.company_name as company_name	            
-			        FROM tbl_users             
-			        LEFT OUTER JOIN tbl_user_roles
-			        	ON tbl_users.user_role_id = tbl_user_roles.user_role_id		                
-		            LEFT OUTER JOIN tbl_companies
-			        	ON tbl_users.company_id = tbl_companies.company_id
-		            ORDER BY company_name, username    
-	    "; 
-
-	    try 
-	    { 
-	        // These two statements run the query against your database table. 
-	        $stmt = $db->prepare($query); 
-	        $stmt->execute(); 
-	    } 
-	    catch(PDOException $ex) 
-	    { 
-	        // Note: On a production website, you should not output $ex->getMessage(). 
-	        // It may provide an attacker with helpful information about your code.  
-	        die("Failed to run query: " . $ex->getMessage()); 
-	    } 
-
-	    // Finally, we can retrieve all of the found rows into an array using fetchAll 
-    	$rows = $stmt->fetchAll(); 
-
-	?>
-
-
-	<table class="table table-bordered table-striped">
-		<thead>
-			<tr>
-				<td>
-					Username
-				</td>
-				<td>
-					Name
-				</td>
-				<td>
-					Email
-				</td>
-				<td>
-					Role Level
-				</td>
-				<td>
-					Company
-				</td>
-				<td>
-					&nbsp;
-				</td>
-			</tr>
-		</thead>
-		<tbody>
-			<?php foreach($rows as $row): ?> 				
-				<tr>
-					<td>
-						<?php echo $row["username"]; ?>
-					</td>
-					<td>
-						<?php  echo $row["last_name"] . ", " . $row["first_name"]; ?>
-					</td>
-					<td>
-						<?php echo $row["email"]; ?>
-					</td>
-					<td>
-						<?php echo $row["role_name"]; ?>
-					</td>
-					<td>
-						<?php echo $row["company_name"]; ?>
-					</td>
-					<td>
-						<a href="<?php echo BASE_URL; ?>edit_user.php?user_id=<?php echo $row["user_id"] ?>" class="btn btn-primary">edit</a>
-					</td>
-				</tr>
-			<?php endforeach; ?>
-		</tbody>
-	</table>
-
-	<a href="<?php echo BASE_URL; ?>create_user.php" class="btn btn-success">Create New User</a>
-
-</div><!-- app-col-main -->
-
-<?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/footer.php"); ?>
+<?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/all-includes.php"); ?><?php $user->redirect_customer(); ?><?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/header-modified.php"); ?><!-- app main column --><?php $user->redirect_customer(); ?><div class="app-col-main grid_12 alpha">  	<h2>User Management</h2>	<?php // $user->userGreating(); ?>	<?php        //Working out if we have sort and then order the data        $order = 'ORDER BY username DESC';        if(isset($_GET['sort']) && !empty($_GET['sort'])){            switch ($_GET['sort']) {                case "username":                    $order = 'ORDER BY username ASC';                    break;                case "email":                    $order = 'ORDER BY email ASC';                    break;                case "role":                    $order = 'ORDER BY tbl_users.user_role_id ASC';                    break;                case "company":                    $order = 'ORDER BY tbl_users.company_id ASC';                    break;                default:                    $order = 'ORDER BY username DESC';            }        }		// Do DB Query		 $query = " 	                SELECT 	                	tbl_users.user_id,			        	tbl_users.username,			        	tbl_users.first_name,			        	tbl_users.last_name,		                tbl_users.email,		                tbl_users.vehicle_permission,		                tbl_users.dashboard_permission,			        	t2.role as role_name,		                tbl_companies.company_name as company_name	            			        FROM tbl_users			        LEFT OUTER JOIN tbl_user_roles t2			        	ON tbl_users.user_role_id = t2.user_role_id		            LEFT OUTER JOIN tbl_companies			        	ON tbl_users.company_id = tbl_companies.company_id		            ".$order."	    "; 	    try 	    { 	        // These two statements run the query against your database table. 	        $stmt = $db->prepare($query); 	        $stmt->execute(); 	    } 	    catch(PDOException $ex) 	    { 	        // Note: On a production website, you should not output $ex->getMessage(). 	        // It may provide an attacker with helpful information about your code.  	        die("Failed to run query: " . $ex->getMessage()); 	    } 	    // Finally, we can retrieve all of the found rows into an array using fetchAll     	$rows = $stmt->fetchAll(); 	?>	<table class="table table-bordered table-striped">		<thead>			<tr>				<td>                    <a href="<?php echo BASE_URL; ?>user-management.php?sort=username">Username <?php if(isset($_GET['sort']) && $_GET['sort'] == 'username'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a>				</td><!--				<td>--><!----><!--					Name--><!----><!--				</td>-->				<td>                    <a href="<?php echo BASE_URL; ?>user-management.php?sort=email">Email <?php if(isset($_GET['sort']) && $_GET['sort'] == 'email'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a>				</td>				<td>                    <a href="<?php echo BASE_URL; ?>user-management.php?sort=role">Role Level <?php if(isset($_GET['sort']) && $_GET['sort'] == 'role'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a>				</td>				<td>                    <a href="<?php echo BASE_URL; ?>user-management.php?sort=company">Company <?php if(isset($_GET['sort']) && $_GET['sort'] == 'company'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a>				</td>                <td>                    Vehicle Permission?                </td>                <td>                    Dashboard Permission?                </td>				<td>					&nbsp;				</td>			</tr>		</thead>		<tbody>			<?php foreach($rows as $row): ?> 								<tr>					<td>						<?php echo $row["username"]; ?>                        <br/>                        <?php echo $row["last_name"] . ", " . $row["first_name"]; ?>					</td><!--					<td>--><!----><!--						--><?php // echo $row["last_name"] . ", " . $row["first_name"]; ?><!----><!--					</td>-->					<td>						<?php echo $row["email"]; ?>					</td>					<td>						<?php echo $row["role_name"]; ?>					</td>					<td>						<?php echo $row["company_name"]; ?>					</td>                    <td class="text-center">                        <?php                        if(isset($row['vehicle_permission']) && !empty($row['vehicle_permission']) && $row['vehicle_permission'] == 1){                            echo '<a class="btn btn-effect-ripple btn-sm btn-success toggle-vehicle-permission" data-state="1" data-id="'.$row["user_id"].'"><i class="fa fa-check" aria-hidden="true"></i></a>';                        }else{                            echo '<a class="btn btn-effect-ripple btn-sm btn-danger toggle-vehicle-permission" data-state="0" data-id="'.$row["user_id"].'"><i class="fa fa-times" aria-hidden="true"></i></a>';                        }                        ?>                    </td>                    <td class="text-center">                        <?php                        if(isset($row['dashboard_permission']) && !empty($row['dashboard_permission']) && $row['dashboard_permission'] == 1){                            echo '<a class="btn btn-effect-ripple btn-sm btn-success toggle-dashboard-permission" data-state="1" data-id="'.$row["user_id"].'"><i class="fa fa-check" aria-hidden="true"></i></a>';                        }else{                            echo '<a class="btn btn-effect-ripple btn-sm btn-danger toggle-dashboard-permission" data-state="0" data-id="'.$row["user_id"].'"><i class="fa fa-times" aria-hidden="true"></i></a>';                        }                        ?>                    </td>					<td>						<a href="<?php echo BASE_URL; ?>edit_user.php?user_id=<?php echo $row["user_id"] ?>" class="btn btn-primary">edit</a>					</td>				</tr>			<?php endforeach; ?>		</tbody>	</table>	<a href="<?php echo BASE_URL; ?>create_user.php" class="btn btn-success">Create New User</a></div><!-- app-col-main --><?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/footer.php"); ?>

@@ -1,13 +1,14 @@
-            
-        
 
-        </div><!-- app-primary-content -->
-    </div><!-- app-primary -->
+
+        <?php if (!stripos($_SERVER['REQUEST_URI'], 'vehicle-dashboard.php')){?>
+            </div><!-- app-primary-content -->
+                </div><!-- app-primary -->
+        <?php } ?>
 
 
 
             <!-- footerr -->
-        <div class="site-footer ">
+        <div class="site-footer hidden-print">
 
             <div class="container_12">
 
@@ -26,13 +27,25 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>    
+<!--    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>-->
+    <script src="js/bootstrap.min.js"></script>
     <script src="dist/jquery.validate.js"></script>
-    <script src="js/bootstrap-datepicker.js"></script>    
-    <script src="js/corrcheck.js"></script>    
+    <script src="js/bootstrap-datepicker.js"></script>
+    <?php if (!stripos($_SERVER['REQUEST_URI'], 'vehicle-dashboard.php')){?>
+        <script src="js/jquery-ui.min.js"></script>
+    <?php } ?>
+    <script src="js/corrcheck.js"></script>
+
+    <?php if (isset($cameraScript) && $cameraScript == true){?>
+        <script src="js/modernizr.min.js"></script>
+        <script src="js/jquery.Jcrop.js"></script>
+        <script src="js/ocrad.min.js"></script>
+        <script src="js/glfx.min.js"></script>
+        <script src="js/jcrop-main.js"></script>
+    <?php } ?>
     <script type="text/javascript">
     $(document).ready(function() {
+//        $('.form-wrap .datepicker').datepicker();
         // The code below should only fire on create-report.php
         // And edit-report.php
         

@@ -81,7 +81,26 @@ function create_corrCheck_Vehicle_Details($db){	?>
 
   <div class="section-questions">
 	
-<?php   
+<?php
+    // Need to get vehicles for Vehicle reg field
+    $query = "
+            SELECT
+                t1.reg
+            FROM tbl_vehicles t1
+            WHERE t1.is_active = 1
+            ORDER BY t1.reg ASC
+        ";
+    try {
+        // These two statements run the query against your database table.
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+    } catch (PDOException $ex) {
+        // Note: On a production website, you should not output $ex->getMessage().
+        // It may provide an attacker with helpful information about your code.
+        die("Failed to run query: " . $ex->getMessage());
+    }
+    // Finally, we can retrieve all of the found rows into an array using fetchAll
+    $vehicles = $stmt->fetchAll();
 
   // where section_ID = 1 
 	try {
@@ -145,15 +164,35 @@ function create_corrCheck_Vehicle_Details($db){	?>
 
           </select>
 
-        <?php }  
-
+        <?php } // Vehicle Registration
+        elseif($question_id == 12){?>
+            <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="selectpicker" data-live-search="true" data-width="180px">
+                <?php foreach($vehicles as $key => $vehicle){?>
+                    <option value="<?php echo $vehicle['reg'] ?>" > <?php echo $vehicle['reg']?></option>
+                <?php } ?>
+            </select>
+            <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success" title = "add a vehicle"><i class="fa fa-plus" aria-hidden="true"></i></a>
+        <?php } // PSV Inspection?
+        elseif($question_id == 175){?>
+            <label class="switch">
+                <input type="hidden" name="<?php echo $question_name ?>"value="0">
+                <input type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1">
+                <div class="slider round"></div>
+            </label>
+            <label class = "right-hand-label">PSV</label>
+        <?php }
+        elseif($question_id == 176){ ?>
+            <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="form-control">
+                <option value="customer">Customer</option>
+                <option value="corr brothers">Corr Brothers</option>
+            </select>
+        <?php }
         elseif($question_type == "Date"){ // If question is a date field ?>   
           <input type="input" class="form-control date-input form-control datepicker" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" data-date-format="dd-mm-yyyy" value="<?php echo date("d-m-Y"); ?>" required>   
         <?php }
 
         elseif($question_type == "Number"){ // If question is a number field ?>
-          <input type="input" class="form-control number-input form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required>                  
-        
+          <input type="input" class="form-control number-input form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required>
         <?php }
 
         elseif($question_type == "Dropdown"){ // If question is a dropdown field ?>  
@@ -174,6 +213,10 @@ function create_corrCheck_Vehicle_Details($db){	?>
 
         elseif($question_type == "Textarea"){ ?>          
           <textarea name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" rows="6" class="form-control"></textarea>
+        <?php }elseif($question_type == "Checkbox"){ ?>
+            <!-- We Use a hidden one so we do not get flagged for null value on submit -->
+            <input class="form-control" type="hidden" name="<?php echo $question_name ?>"value="0">
+            <input class="form-control" type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1" checked>
         <?php } ?>
 
       </div><!-- close col-sm-10 -->
@@ -213,7 +256,36 @@ function create_corrCheck_Brake_Perf($db) { ?>
 
     <h2>Brake Performance</h2>
 
-    <div class="panel-group" id="accordion">
+      <div class="panel-group" id="accordion">
+          <!-- start panel -->
+          <div class="panel panel-primary">
+              <div class = "row">
+                  <div class = "col-md-3 col-md-offset-3">
+                      <strong>Service Break</strong>
+                  </div>
+
+                  <div class = "col-md-4 col-md-offset-2">
+                      <strong>Parking Break</strong>
+                  </div>
+              </div>
+
+              <div class = "row">
+                  <div class = "col-md-2 col-md-offset-2">
+                      <p>DEC(%)</p>
+                  </div>
+
+                  <div class = "col-md-3">
+                      <p>IMB(%)</p>
+                  </div>
+
+                  <div class = "col-md-2">
+                      <p>DEC(%)</p>
+                  </div>
+
+                  <div class = "col-md-3">
+                      <p>IMB(%)</p>
+                  </div>
+              </div>
 
     <?php
 
@@ -221,67 +293,33 @@ function create_corrCheck_Brake_Perf($db) { ?>
 
     for($count=1;$count<11;$count++): ?>
 
-    <!-- start panel -->
-    <div class="panel panel-primary">
-    
-    	<!-- panel heading -->
-    	<div class="panel-heading">
-    		<h2 class="panel-title">
-    			<a data-toggle="collapse" data-parent="#accordion" href="#collapse<?php echo $count; ?>">
-    				Axle <?php echo $count; ?>
-    			</a>
-    		</h2>
-    	</div><!-- end heading -->
+          <div class="form-group">
+              <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-md-2 control-label">Axle <?php echo $axle_no ?></label>
 
+              <div class="col-md-2">
+                  <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_dec" id="axle_<?php echo $axle_no; ?>_service_bk_dec">
+              </div>
 
-	    <div id="collapse<?php echo $count; ?>" class="bk_perf_axle_<?php echo $axle_no; ?> panel-collapse collapse">
-	    	<div class="panel-body">	    		
+              <div class="col-md-2">
+                  <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_imb" id="axle_<?php echo $axle_no; ?>_service_bk_imb">
+              </div>
 
-	      <div class="form-group">
-	        <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Service Brake DEC(%)</label>
-	        <div class="col-sm-4">
-	        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_dec" id="axle_<?php echo $axle_no; ?>_service_bk_dec"> 
-	        </div>
-	      </div><!-- row -->
+              <div class="col-md-2 col-md-offset-1">
+                  <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_dec" id="axle_<?php echo $axle_no; ?>_parking_bk_dec">
+              </div>
 
-	      <div class="form-group">
-	        <label for="axle_<?php echo $axle_no; ?>_service_bk_imb" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Service Brake IMB(%)</label>
-	        <div class="col-sm-4">
-	        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_service_bk_imb" id="axle_<?php echo $axle_no; ?>_service_bk_imb">  
-	        </div>
-	        
-          
-	      </div>
-
-	      <div class="form-group">
-	        <label for="axle_<?php echo $axle_no; ?>_parking_bk_dec" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Parking Brake DEC(%)</label>
-	        <div class="col-sm-4">
-	        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_dec" id="axle_<?php echo $axle_no; ?>_parking_bk_dec">
-	        </div>
-	        
-                               
-	      </div>
-
-	      <div class="form-group">
-	        <label for="axle_<?php echo $axle_no; ?>_parking_bk_imb" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> Parking Brake IMB(%)</label>
-	        <div class="col-sm-4">
-	        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_imb" id="axle_<?php echo $axle_no; ?>_parking_bk_imb">       
-	        </div>
-	      </div>
-
-	      <div class="alert alert-info" role="alert">
-        	<strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
-      	</div>
-
+              <div class="col-md-2">
+                  <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_parking_bk_imb" id="axle_<?php echo $axle_no; ?>_parking_bk_imb">
+              </div>
+          </div>
 	    <?php $axle_no++; ?>
 	      
-	    </div><!-- panel-body -->
-	   </div><!-- panel-collapse -->
-
-	</div><!-- close panel -->
 
     <?php endfor; ?>
-
+      <div class="alert alert-info" role="alert">
+          <strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
+      </div>
+      </div><!-- panel-body -->
 	</div><!-- close panel-group -->
 
   </fieldset>
@@ -298,7 +336,38 @@ function create_corrCheck_Tyre_Thread($db){ ?>
 
     <h2>Tyre Thread Remaining</h2>
 
-    <div class="panel-group" id="accordion">
+       <div class="panel-group" id="accordion">
+           <!-- start panel -->
+           <div class="panel panel-primary">
+               <div class = "row">
+                   <div class = "col-md-3 col-md-offset-3">
+                       <strong>Near Side</strong>
+                   </div>
+
+                   <div class = "col-md-4 col-md-offset-2">
+                       <strong>Off Side</strong>
+                   </div>
+               </div>
+
+               <div class = "row">
+                   <div class = "col-md-2 col-md-offset-2">
+                       <p>Outside</p>
+                   </div>
+
+                   <div class = "col-md-3">
+                       <p>Inside</p>
+                   </div>
+
+                   <div class = "col-md-2">
+                       <p>Inside</p>
+                   </div>
+
+                   <div class = "col-md-3">
+                       <p>Outside</p>
+                   </div>
+               </div>
+
+
 
     <?php
 
@@ -306,80 +375,33 @@ function create_corrCheck_Tyre_Thread($db){ ?>
 
     for($count=1;$count<11;$count++): ?>
 
-    <!-- start panel -->
-    <div class="panel panel-primary">
+        <div class="form-group">
+            <label for="axle_<?php echo $axle_no; ?>_service_bk_dec" class="col-md-2 control-label">Axle <?php echo $axle_no ?></label>
 
-    	<!-- panel heading -->
-    	<div class="panel-heading">
-    		<h2 class="panel-title">
-    			<a data-toggle="collapse" data-parent="#accordion" href="#tyre-thread-collapse-<?php echo $count; ?>">    
-    				Axle <?php echo $count; ?>
-	    		</a>
-    		</h2>
-    	</div><!-- close heading -->
+            <div class="col-md-2">
+                <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_near" id="axle_<?php echo $axle_no; ?>_outer_near">
+            </div>
 
-    	<div id="tyre-thread-collapse-<?php echo $count; ?>" class="bk_perf_axle_<?php echo $axle_no; ?> panel-collapse collapse">
-	    	<div class="panel-body">
+            <div class="col-md-2">
+                <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_near" id="axle_<?php echo $axle_no; ?>_inner_near">
+            </div>
 
-			    <div class="tyre_thread_axle_<?php echo $axle_no; ?>">
-			      
-			      <?php // ********** Axle 1 INNER Near Side (mm) ?>
-			      <div class="form-group">
-			        
-			        <label for="axle_<?php echo $axle_no; ?>_inner_near" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> INNER Near Side (mm)</label>	
-			        <div class="col-sm-4">		        
-			        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_near" id="axle_<?php echo $axle_no; ?>_inner_near"> 			        
-			        </div>
-			                
-			      </div>
+            <div class="col-md-2 col-md-offset-1">
+                <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_off" id="axle_<?php echo $axle_no; ?>_inner_off">
+            </div>
 
-			      <?php // ********** Axle 1 INNER Off Side (mm) ?>
-			      <div class="form-group">
-			        
-			        <label for="axle_<?php echo $axle_no; ?>_inner_off" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> INNER Off Side (mm)</label>
-			        <div class="col-sm-4">			        
-			        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_inner_off" id="axle_<?php echo $axle_no; ?>_inner_off"> 			        
-			        </div>
-			           
-			      </div>
+            <div class="col-md-2">
+                <input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_off" id="axle_<?php echo $axle_no; ?>_outer_off">
+            </div>
+        </div>
 
-
-			      <?php // ********** Axle 1 OUTER Near Side (mm) ?>
-			      <div class="form-group">
-			        
-			        <label for="axle_<?php echo $axle_no; ?>_outer_near" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> OUTER Near Side (mm)</label>
-			        <div class="col-sm-4">			        
-			        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_near" id="axle_<?php echo $axle_no; ?>_outer_near"> 			        
-			        </div>
-			      
-			      </div>
-
-			      <?php // ********** Axle 1 OUTER Off Side (mm) ?>
-			      <div class="form-group">
-			        
-			        <label for="axle_<?php echo $axle_no; ?>_outer_off" class="col-sm-3 control-label">Axle <?php echo $axle_no ?> OUTER Off Side (mm)</label>
-			        <div class="col-sm-4">			        
-			        	<input type="input" class="form-control number-input" maxlength="50" name="axle_<?php echo $axle_no; ?>_outer_off" id="axle_<?php echo $axle_no; ?>_outer_off"> 			        
-			        </div>
-			       
-			      </div>
-
-			      <div class="alert alert-info" role="alert">
-		        	<strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
-		      	</div>
-
-    			<?php $axle_no++; ?>
-
-    		</div><!-- panel-body -->
-	   </div><!-- panel-collapse -->
-      
-    </div>
-
-    </div><!-- close panel -->
-
+        <?php $axle_no++; ?>
     <?php endfor; ?>
-
-  	</div><!-- close panel-group -->
+           <div class="alert alert-info" role="alert">
+               <strong>NOTE:</strong> Any items left blank will not be submitted as part of report.
+           </div>
+       </div><!-- panel-body -->
+    </div><!-- close panel-group -->
 
   </fieldset>
 
@@ -809,7 +831,6 @@ function get_all_corr_users($db){
  * ======================================================================================================
  */
 function get_standard_section($db, $section_id, $section_class){
-
   try {
       $results = $db->query("
         SELECT 
@@ -843,12 +864,13 @@ function get_standard_section($db, $section_id, $section_class){
 
       $ind_required = $row["ind_required"]; ?>
 
+
+
         <div class="form-group<?php if($ind_trailers == "N") echo " not_trailers"; ?>">
 
           <label for="<?php echo $question_name; ?>" class="col-sm-3 control-label"><?php echo $question_text; ?>:</label>
           <div class="col-sm-3">
 		          <?php
-
 		          // Assess and output questions type
 		          switch($question_type) {
 		            
@@ -867,6 +889,10 @@ function get_standard_section($db, $section_id, $section_class){
 		                </select>
 
 		            <?php break;
+
+                      case "Checkbox": ?>
+                          <input class="form-control" type="checkbox" name="<?php echo $question_name ?>" value="Yes">
+                    <?php break;
 
 		          } // end the switch         
 

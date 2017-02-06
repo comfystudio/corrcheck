@@ -109,7 +109,7 @@
     <script src="js/bootstrap.min.js"></script>    
     <script src="dist/jquery.validate.js"></script>
     <script src="js/bootstrap-datepicker.js"></script>
-    <script src="js/corrcheck.js"></script>    
+    <script src="js/corrcheck.js"></script>
     <script type="text/javascript">
     $(document).ready(function() {
 

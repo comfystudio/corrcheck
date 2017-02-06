@@ -1,0 +1,11 @@
+@media print
+{
+    .hidden-print, .hidden-print *
+    {
+        display: none !important;
+    }
+
+    .app-col-main{
+        display: inline-block;
+    }
+}

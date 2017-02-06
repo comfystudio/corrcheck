@@ -32,6 +32,8 @@ class Config_User {
 	var $user_role;
 	var $company_id;
 	var $company_name;
+    var $vehicle_permission;
+    var $dashboard_permission;
 
 	// Required for pages
 	var $edit_mode;
@@ -81,6 +83,9 @@ class Config_User {
 			$this->user_role = "";
 			$this->company_id = "";
 			$this->company_name = "";
+            $this->vehicle_permission = "";
+            $this->dashboard_permission = "";
+
 
    		}elseif($this->edit_mode == "post_create"){  			
 
@@ -135,7 +140,9 @@ class Config_User {
 	  $this->email =  $row["email"];
 	  $this->tel_no = $row["tel_no"];        
 	  $this->user_role_id = $row["user_role_id"];
-	  $this->company_id = $row["company_id"];  	  
+	  $this->company_id = $row["company_id"];
+      $this->vehicle_permission = $row['vehicle_permission'];
+      $this->dashboard_permission = $row['dashboard_permission'];
 
 	}
 
@@ -152,6 +159,8 @@ class Config_User {
 	  	$this->tel_no = $post_array["tel_no"];        
 	  	$this->user_role_id = $post_array["usertype"];
 	  	$this->company_id = $post_array["company"];
+        $this->vehicle_permission = $post_array['vehicle_permission'];
+        $this->dashboard_permission = $post_array['dashboard_permission'];
 
 	}
 
@@ -169,6 +178,8 @@ class Config_User {
 		$this->userVarArray["company_id"] = $this->company_id;
 		$this->userVarArray["company_name"] = $this->company_name;
 		$this->userVarArray["user_role"] = $this->user_role;
+        $this->userVarArray['vehicle_permission'] = $this->vehicle_permission;
+        $this->userVarArray['dashboard_permission'] = $this->dashboard_permission;
 
 	}
 

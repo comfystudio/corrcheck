@@ -5,7 +5,7 @@
 	$(".extra-emails").hide();	
 
 	// Show first section of survey
-	$(".veh_dets").show();	
+	$(".veh_dets").show();
 
 	// Initialise the datepicker | hide when date clicked
 	var surveyDate = $('.datepicker').datepicker().on('changeDate', function(ev) {
@@ -16,12 +16,216 @@
 	
 	
 	$(".email-ctrl").click(function(e){
-
 		e.preventDefault();
 		$(".extra-emails").toggle();
-
 	});
 
+    /** ========================================
+     * Vehicle-dashboard Back and Forward functionality
+     * ======================================== */
+
+    $( "#dashboard-back" ).click(function() {
+        $.ajax({
+            url: '_ajax-vehicle-dashboard.php',
+            type: 'POST',
+            data: $('#vehicle-dashboard-form').serialize()+'&direction=back',
+            success: function(data){
+                parent = $('#ajax-dashboard').parent();
+                $('#ajax-dashboard').remove();
+                parent.append(data);
+                dashboardBack();
+                dashboardForward();
+                $('[data-toggle="tooltip"]').tooltip({html: true});
+            },
+            error: function(){
+                alert('failure');
+            }
+        });
+    });
+
+    $( "#dashboard-forward" ).click(function() {
+        $.ajax({
+            url: '_ajax-vehicle-dashboard.php',
+            type: 'POST',
+            data: $('#vehicle-dashboard-form').serialize()+'&direction=forward',
+            success: function(data){
+                parent = $('#ajax-dashboard').parent();
+                $('#ajax-dashboard').remove();
+                parent.append(data);
+                dashboardBack();
+                dashboardForward();
+                $('[data-toggle="tooltip"]').tooltip({html: true});
+            },
+            error: function(){
+                alert('failure');
+            }
+        });
+    });
+
+    function dashboardBack(){
+        $( "#dashboard-back" ).click(function() {
+            $.ajax({
+                url: '_ajax-vehicle-dashboard.php',
+                type: 'POST',
+                data: $('#vehicle-dashboard-form').serialize()+'&direction=back',
+                success: function(data){
+                    parent = $('#ajax-dashboard').parent();
+                    $('#ajax-dashboard').remove();
+                    parent.append(data);
+                    dashboardBack();
+                    dashboardForward();
+                },
+                error: function(){
+                    alert('failure');
+                }
+            });
+        });
+    }
+
+    function dashboardForward(){
+        $( "#dashboard-forward" ).click(function() {
+            $.ajax({
+                url: '_ajax-vehicle-dashboard.php',
+                type: 'POST',
+                data: $('#vehicle-dashboard-form').serialize()+'&direction=forward',
+                success: function(data){
+                    parent = $('#ajax-dashboard').parent();
+                    $('#ajax-dashboard').remove();
+                    parent.append(data);
+                    dashboardBack();
+                    dashboardForward();
+                },
+                error: function(){
+                    alert('failure');
+                }
+            });
+        });
+    }
+
+
+    /** ========================================
+     * user-management.php Deals with ajax post when user changes vehicle or dashboard permissions
+     * ======================================== */
+
+    $( ".toggle-vehicle-permission" ).click(function() {
+        var state = $(this).data("state");
+        var id = $(this).data("id");
+        if(state == 1){
+            $(this).data("state", 2);
+            $(this).find($(".fa")).removeClass('fa-check').addClass('fa-times');
+            $(this).removeClass('btn-success').addClass('btn-danger');
+            state = 2;
+        }else{
+            $(this).data("state", 1);
+            $(this).find($(".fa")).removeClass('fa-times').addClass('fa-check');
+            $(this).removeClass('btn-danger').addClass('btn-success');
+            state = 1;
+        }
+        $.ajax({
+            url: '_ajax-toggle-vehicle-permission.php',
+            type: 'POST',
+            data: { state: state, id: id},
+            success: function(){
+
+            },
+            error: function(){
+                alert('failure');
+            }
+        });
+    });
+
+    $( ".toggle-dashboard-permission" ).click(function() {
+        var state = $(this).data("state");
+        var id = $(this).data("id");
+        if(state == 1){
+            $(this).data("state", 2);
+            $(this).find($(".fa")).removeClass('fa-check').addClass('fa-times');
+            $(this).removeClass('btn-success').addClass('btn-danger');
+            state = 2;
+        }else{
+            $(this).data("state", 1);
+            $(this).find($(".fa")).removeClass('fa-times').addClass('fa-check');
+            $(this).removeClass('btn-danger').addClass('btn-success');
+            state = 1;
+        }
+        $.ajax({
+            url: '_ajax-toggle-dashboard-permission.php',
+            type: 'POST',
+            data: { state: state, id: id},
+            success: function(){
+
+            },
+            error: function(){
+                alert('failure');
+            }
+        });
+    });
+
+    /** ======================================================================================
+     * create-report.php / edit-report.php. show / hide psv and comments based on selection
+     * ====================================================================================== */
+    $( document ).ready(function() {
+        if($('#veh_dets_175').length) {
+            $("label[for='veh_dets_175']").html('Scheduled');
+            if ($('#veh_dets_174').prop('checked') == false) {
+                $('#veh_dets_175').parent().parent().parent().hide();
+                $('#veh_dets_176').parent().parent().hide();
+                $('#veh_dets_177').parent().parent().hide();
+                $('#veh_dets_175').attr('checked', false);
+            }
+            $('#veh_dets_174').change(function () {
+                if ($('#veh_dets_174').prop('checked') == false) {
+                    $('#veh_dets_175').parent().parent().parent().hide();
+                    $('#veh_dets_176').parent().parent().hide();
+                    $('#veh_dets_177').parent().parent().hide();
+                    $('#veh_dets_175').attr('checked', false);
+                } else {
+                    $('#veh_dets_175').parent().parent().parent().show();
+                    $('#veh_dets_176').parent().parent().show();
+                    $('#veh_dets_177').parent().parent().show();
+                }
+            })
+
+
+
+            //Set background and style to some sort of warning if PSV
+            if ($('#veh_dets_175').prop('checked') == true) {
+                $('.app-col-main').animate({
+                    backgroundColor: "#ff0000"
+                }, 1000);
+                $('#section-nav').animate({
+                    backgroundColor: "#ff0000"
+                }, 1000);
+            }else{
+                $('#veh_dets_176').parent().parent().hide();
+                $('#veh_dets_177').parent().parent().hide();
+            }
+
+            $('#veh_dets_175').change(function () {
+                if ($('#veh_dets_175').prop('checked') == false) {
+                    $('.app-col-main').animate({
+                        backgroundColor: "#e7e7e8"
+                    }, 1000);
+                    $('#section-nav').animate({
+                        backgroundColor: "#242424"
+                    }, 1000);
+                    $('#veh_dets_176').parent().parent().hide();
+                    $('#veh_dets_177').parent().parent().hide();
+
+                } else {
+                    $('.app-col-main').animate({
+                        backgroundColor: "#ff0000"
+                    }, 1000);
+                    $('#section-nav').animate({
+                        backgroundColor: "#ff0000"
+                    }, 1000);
+
+                    $('#veh_dets_176').parent().parent().show();
+                    $('#veh_dets_177').parent().parent().show();
+                }
+            })
+        }
+    })
 
 
 	// ===================================== //
@@ -30,17 +234,16 @@
 	
 	// Initialise jQuery Validate - main vehicle survey
 	$(".corrCheck_form").validate();
-	
+
+    $('.bs-searchbox').find('input').attr("id", "veh_dets_12");
+
 	// Only allow show/hide panels if all required fields in panel 1 are complete
 	$("#section-nav").on('click', 'a', function () {
-
-		var error_count = 0;
+        var error_count = -1;
 
 		// Go through each input in the first panel
 		$(".veh_dets input").each(function(){
-				
-			var thisVal = $(this).val();			
-
+			var thisVal = $(this).val();
 			// go through each input field			
 			if (thisVal == ""){
 				// If a field is empty increment the counter
@@ -54,7 +257,6 @@
 			}	 
 
 		}); // end each()	
-
 		if(error_count >= 1){
 			//alert("error count is greater than or equal to 1 | error count is "+error_count);
 			validate_veh_dets();
@@ -80,9 +282,10 @@
 	// Validate each input in the vehicle details section
 	function validate_veh_dets(){
 		$( ".veh_dets input" ).each(function() {
-			var thisID = $(this).attr('id');	
-
-			$("#"+thisID).valid();
+            if (typeof $(this).attr('id') !== typeof undefined && $(this).attr('id') !== false) {
+                var thisID = $(this).attr('id');
+                $("#"+thisID).valid();
+            }
 		});
 	}
 
@@ -700,28 +903,6 @@
 		else{
 			console.log("No issues found for section: " + section_title);
 		}
-
-
-
-
-
-
-
-
-
-
 	} // Close function: show_summary_std()
-
-
-
-
-	
-	
-
-
-	
-
-	 
-	
 
 } )( jQuery );

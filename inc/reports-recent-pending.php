@@ -39,17 +39,17 @@
 					<tr>
 						<td>
 							<?php $survey_id = $pending_row["survey_ID"];
-								echo  $survey_id;
+                                echo '<a href = "view-report.php?survey_id='.$pending_row["survey_ID"].'" style = "color:#428bca;">'.$pending_row["survey_ID"].'</a>';
 							?>
 						</td>
 						<td>
 							<?php  echo $pending_row["survey_date"]; ?>
 						</td>
 						<td>
-							<?php echo $pending_row["company_name"]; ?>
+                            <?php echo '<a href = "edit_company.php?company_id='.$pending_row['company_ID'].'" style = "color:#428bca;">'.$pending_row["company_name"].'</a>'; ?>
 						</td>
 						<td>
-							<?php echo $pending_row["vehicle_reg"]; ?>
+                            <?php echo '<a href = "vehicle-view.php?vehicle_id='.$pending_row["vehicle_id"].'" style = "color:#428bca;">'.$pending_row["vehicle_reg"].'</a>'; ?>
 						</td>
 						<td>
 							<?php echo $pending_row["username"]; ?>

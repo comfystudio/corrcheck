@@ -10,7 +10,7 @@
     <title>Corr Check Vehicle Survey</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="css/styles.css" rel="stylesheet" media="screen">    
+    <link href="css/styles.css" rel="stylesheet" media="screen">
     <link href="css/datepicker.css" rel="stylesheet" media="screen">   
   </head>
   
@@ -96,7 +96,7 @@
     <script src="js/bootstrap.min.js"></script>    
     <script src="dist/jquery.validate.js"></script>
     <script src="js/bootstrap-datepicker.js"></script>
-    <script src="js/corrcheck.js"></script>    
+    <script src="js/corrcheck.js"></script>
     <script type="text/javascript">
     $(document).ready(function() {
 
