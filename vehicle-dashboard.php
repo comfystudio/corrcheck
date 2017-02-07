@@ -239,9 +239,12 @@ foreach($rows as $key => $row){
     }
 }
 
-//echo '<pre>';
-//print_r($rows);
-//echo '</pre>';
+//reverse array so we have lorry above trailers
+$rows = array_reverse($rows);
+
+echo '<pre>';
+print_r($rows);
+echo '</pre>';
 
 //echo '<pre>';
 //print_r($surveys);
@@ -343,8 +346,12 @@ $temp = "";
                                 </div>
                                 <!-- END OF FILTER FOR PSV -->
 
-                                <div class="col-lg-3 col-sm-offset-3 col-md-6 col-xs-6">
+                                <div class="col-lg-1 col-lg-offset-2 col-md-1 col-xs-6">
                                     <button type="submit" class="btn btn-success">Search</button>
+                                </div>
+
+                                <div class="col-lg-1 col-md-1 col-xs-6">
+                                    <a href = "<?php echo BASE_URL; ?>vehicle-dashboard.php" class="btn btn-primary">Reset</a>
                                 </div>
 
                                 <div class="pull-right"></div>
@@ -355,10 +362,19 @@ $temp = "";
                                 <table class="table table-bordered table-striped table-vcenter table-hover no-margin">
                                     <thead>
                                     <tr>
-                                        <th style = "width:20px;">Vehicle Reg</th>
+                                        <th style = "width:20px;">Vehicle ID / Reg</th>
                                         <!-- For loop to put weeks in header -->
                                         <?php for($i = 1; $i <= $number_weeks; $i++){?>
-                                            <th class = "dashboard-table-row text-center"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
+                                            <?php
+                                                if($i == $today) {
+                                                    $class = "today";
+                                                }elseif(($i % 2) == 1){
+                                                    $class = "odd";
+                                                }else{
+                                                    $class = "";
+                                                }
+                                            ?>
+                                            <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
                                         <?php } ?>
                                     </tr>
                                     </thead>
@@ -366,7 +382,14 @@ $temp = "";
                                         <?php foreach($rows as $data) {?>
                                             <?php if($temp != $data['type']){?>
                                                 <tr>
-                                                    <td colspan="<?php echo 2+$number_weeks?>" class = "table-divide"><strong><?php echo strtoupper($data['type']);?></strong></td>
+                                                    <?php
+                                                        if($data['type'] == 'lorry'){
+                                                            $string = 'Motor Vehicle';
+                                                        }elseif($data['type'] == 'trailer'){
+                                                            $string = 'trailer';
+                                                        }
+                                                    ?>
+                                                    <td colspan="<?php echo 2+$number_weeks?>" class = "table-divide"><strong><?php echo strtoupper($string);?></strong></td>
                                                 <tr>
                                                 <?php $temp = $data['type'];?>
                                             <?php } ?>
