@@ -242,9 +242,9 @@ foreach($rows as $key => $row){
 //reverse array so we have lorry above trailers
 $rows = array_reverse($rows);
 
-echo '<pre>';
-print_r($rows);
-echo '</pre>';
+//echo '<pre>';
+//print_r($rows);
+//echo '</pre>';
 
 //echo '<pre>';
 //print_r($surveys);
@@ -268,93 +268,97 @@ $temp = "";
                     <div class="dataTables_wrapper form-inline no-footer" id = "ajax-dashboard">
                         <div class="row">
                             <form class="form-wrap" method="post" action="" id = "vehicle-dashboard-form">
-                                <?php if ($user->user_role == "Manager"){?>
+                                <div class = "row">
+                                    <?php if ($user->user_role == "Manager"){?>
+                                        <div class="col-lg-3 col-md-6 col-xs-6">
+                                            <div class="sf-company-filter search-group">
+                                                <label for="company-filter">
+                                                    Select Company:
+                                                </label>
+                                                <select name="company-filter" id="company-filter" class="form-control">
+                                                    <option value="search-all" <?php if(isset($_POST["company-filter"]) && $_POST["company-filter"]=="search-all") echo 'selected'; ?>>Search All</option>
+                                                    <?php
+                                                    // Get companies
+                                                    $companies = get_company_names($db);
+                                                    foreach($companies as $company_id => $company){
+                                                        $company_name = $company["company_name"];
+                                                        ?>
+                                                        <option value="<?php echo $company_id; ?>"
+                                                            <?php
+                                                            if(isset($_POST["company-filter"])){
+                                                                if($_POST["company-filter"] == $company_id){
+                                                                    echo "selected";
+                                                                }
+                                                            }
+                                                            ?>
+                                                            ><?php echo $company_name; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div><!-- sf-company-filter -->
+                                        </div>
+
+                                        <div class="col-lg-3 col-md-6 col-xs-6">
+                                            <div class="sf-search-box search-group">
+                                                <label for="reg-search-input">Registration Search: </label>
+                                                <input type="text" name="reg-search-input" id="reg-search-input" class="form-control" value="<?php if(isset($_POST['reg-search-input'])){echo $_POST['reg-search-input'];} ?>">
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+
                                     <div class="col-lg-3 col-md-6 col-xs-6">
                                         <div class="sf-company-filter search-group">
                                             <label for="company-filter">
-                                                Select Company:
+                                                Show Vehicles Last Tested:
                                             </label>
-                                            <select name="company-filter" id="company-filter" class="form-control">
-                                                <option value="search-all" <?php if(isset($_POST["company-filter"]) && $_POST["company-filter"]=="search-all") echo 'selected'; ?>>Search All</option>
-                                                <?php
-                                                // Get companies
-                                                $companies = get_company_names($db);
-                                                foreach($companies as $company_id => $company){
-                                                    $company_name = $company["company_name"];
-                                                    ?>
-                                                    <option value="<?php echo $company_id; ?>"
-                                                        <?php
-                                                        if(isset($_POST["company-filter"])){
-                                                            if($_POST["company-filter"] == $company_id){
-                                                                echo "selected";
-                                                            }
-                                                        }
-                                                        ?>
-                                                        ><?php echo $company_name; ?></option>
-                                                <?php } ?>
+                                            <select name="last-filter" id="last-filter" class="form-control">
+                                                <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>Show All</option>
+                                                <option value="26" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>26 Weeks</option>
+                                                <option value="20" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="20") echo 'selected'; ?>>20 Weeks</option>
+                                                <option value="16" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="16") echo 'selected'; ?>>16 Weeks</option>
+                                                <option value="12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="12") echo 'selected'; ?>>12 Weeks</option>
+                                                <option value="8" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="8") echo 'selected'; ?>>8 Weeks</option>
+                                                <option value="6" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="6") echo 'selected'; ?>>6 Weeks</option>
+                                                <option value="4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="4") echo 'selected'; ?>>4 Weeks</option>
+                                                <option value="2" <?php if((isset($_POST["last-filter"]) && $_POST["last-filter"]=="2") || !isset($_POST["last-filter"])) echo 'selected'; ?>>2 Weeks</option>
+                                                <option value="1" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="1") echo 'selected'; ?>>1 Weeks</option>
                                             </select>
                                         </div><!-- sf-company-filter -->
                                     </div>
 
-                                    <div class="col-lg-3 col-md-6 col-xs-6">
-                                        <div class="sf-search-box search-group">
-                                            <label for="reg-search-input">Registration Search: </label>
-                                            <input type="text" name="reg-search-input" id="reg-search-input" class="form-control" value="<?php if(isset($_POST['reg-search-input'])){echo $_POST['reg-search-input'];} ?>">
+                                    <!-- FILTER FOR PSV -->
+                                    <div class="col-lg-2 col-md-6 col-xs-6">
+                                        <div class="sf-company-filter search-group">
+                                            <label for="psv-filter">Show Only PSVs?</label>
+                                            <input class="form-control" type="checkbox" name="psv-filter" value="1" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?>>
                                         </div>
                                     </div>
-                                <?php } ?>
+                                    <!-- END OF FILTER FOR PSV -->
 
-                                <div class="col-lg-3 col-md-6 col-xs-6">
-                                    <div class="input-group input-daterange" data-date-format="dd-mm-yyyy" data-date-view-mode="months" data-date-min-view-mode="months">
-                                        <input type="text" name="start_date" class="form-control datepicker" data-provide="datepicker" data-date-format="dd-mm-yyyy" placeholder="Start Date" value="<?php if(!empty($_POST['start_date'])){echo $_POST['start_date'];}?>">
-                                        <span class="input-group-addon"><i class="fa fa-chevron-right"></i></span>
-                                        <input type="text" name="end_date" class="form-control datepicker" data-provide="datepicker" data-date-format="dd-mm-yyyy" placeholder="End Date" value="<?php if(!empty($_POST['end_date'])){echo $_POST['end_date'];}?>">
+                                    <div class="col-lg-1 col-md-1 col-xs-6">
+                                        <a href = "<?php echo BASE_URL; ?>vehicle-dashboard.php" class="btn btn-primary">Reset</a>
                                     </div>
                                 </div>
 
-                                <div class="col-lg-3 col-md-6 col-xs-6">
-                                    <span class="input-group-addon" id = "dashboard-back"><i class="fa fa-chevron-left"></i> Back</span>
-                                    <span class="input-group-addon" id = "dashboard-forward">Forward <i class="fa fa-chevron-right"></i></span>
-                                </div>
+                                <div class = "row">
+                                    <div class="col-lg-3 col-md-6 col-xs-6">
+                                        <div class="input-group input-daterange" data-date-format="dd-mm-yyyy" data-date-view-mode="months" data-date-min-view-mode="months">
+                                            <input type="text" name="start_date" class="form-control datepicker" data-provide="datepicker" data-date-format="dd-mm-yyyy" placeholder="Start Date" value="<?php if(!empty($_POST['start_date'])){echo $_POST['start_date'];}?>">
+                                            <span class="input-group-addon"><i class="fa fa-chevron-right"></i></span>
+                                            <input type="text" name="end_date" class="form-control datepicker" data-provide="datepicker" data-date-format="dd-mm-yyyy" placeholder="End Date" value="<?php if(!empty($_POST['end_date'])){echo $_POST['end_date'];}?>">
+                                        </div>
+                                    </div>
 
-                                <div class="col-lg-3 col-md-6 col-xs-6">
-                                    <div class="sf-company-filter search-group">
-                                        <label for="company-filter">
-                                            Show Vehicles Last Tested:
-                                        </label>
-                                        <select name="last-filter" id="last-filter" class="form-control">
-                                            <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>Show All</option>
-                                            <option value="26" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>26 Weeks</option>
-                                            <option value="20" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="20") echo 'selected'; ?>>20 Weeks</option>
-                                            <option value="16" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="16") echo 'selected'; ?>>16 Weeks</option>
-                                            <option value="12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="12") echo 'selected'; ?>>12 Weeks</option>
-                                            <option value="8" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="8") echo 'selected'; ?>>8 Weeks</option>
-                                            <option value="6" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="6") echo 'selected'; ?>>6 Weeks</option>
-                                            <option value="4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="4") echo 'selected'; ?>>4 Weeks</option>
-                                            <option value="2" <?php if((isset($_POST["last-filter"]) && $_POST["last-filter"]=="2") || !isset($_POST["last-filter"])) echo 'selected'; ?>>2 Weeks</option>
-                                            <option value="1" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="1") echo 'selected'; ?>>1 Weeks</option>
-                                        </select>
-                                    </div><!-- sf-company-filter -->
-                                </div>
+                                    <div class="col-lg-3 col-md-6 col-xs-6">
+                                        <span class="input-group-addon" id = "dashboard-back"><i class="fa fa-chevron-left"></i> Back</span>
+                                        <span class="input-group-addon" id = "dashboard-forward">Forward <i class="fa fa-chevron-right"></i></span>
+                                    </div>
 
-                                <!-- FILTER FOR PSV -->
-                                <div class="col-lg-3 col-md-6 col-xs-6">
-                                    <div class="sf-company-filter search-group">
-                                        <label for="psv-filter">Show Only PSVs?</label>
-                                        <input class="form-control" type="checkbox" name="psv-filter" value="1" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?>>
+                                    <div class="col-lg-1 col-lg-offset-5 col-md-1 col-xs-6">
+                                        <button type="submit" class="btn btn-success">Search</button>
                                     </div>
                                 </div>
-                                <!-- END OF FILTER FOR PSV -->
 
-                                <div class="col-lg-1 col-lg-offset-2 col-md-1 col-xs-6">
-                                    <button type="submit" class="btn btn-success">Search</button>
-                                </div>
-
-                                <div class="col-lg-1 col-md-1 col-xs-6">
-                                    <a href = "<?php echo BASE_URL; ?>vehicle-dashboard.php" class="btn btn-primary">Reset</a>
-                                </div>
-
-                                <div class="pull-right"></div>
+<!--                                <div class="pull-right"></div>-->
                             </form>
                         </div>
                         <?php if(!empty($rows)) {?>
@@ -401,6 +405,9 @@ $temp = "";
                                                     <?php
                                                         if(isset($data['company_name']) && !empty($data['company_name'])){
                                                             echo '<br/>'.'<a href = "/vehicle-dashboard.php?company-filter='.$data['company_id'].'" style = "color:#428bca;">'.$data["company_name"].'</a>';
+                                                        }
+                                                        if(isset($data['psv_date']) && !empty($data['psv_date'])){
+                                                            echo '<br/>PSV - '.date('Y M d', strtotime($data['psv_date']));
                                                         }
                                                     ?>
                                                 </td>
@@ -546,19 +553,6 @@ $temp = "";
                                 </div>
                             </div>
                         <?php } ?>
-
-<!--                        <div class = "col-sm-6">-->
-<!--                            <div class = "widget-content">-->
-<!--                                <div class = "row text-center">-->
-<!--                                    <div class = "col-xs-6">-->
-<!--                                        <a class = "btn btn-effect-ripple btn-sm btn-success"><i class="fa fa-wrench" aria-hidden="true"></i></a>-->
-<!--                                    </div>-->
-<!--                                    <div class = "col-xs-6">-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-
                     </div>
                     <!-- END Table Styles Content -->
                 </div>
