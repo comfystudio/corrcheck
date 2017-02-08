@@ -18,7 +18,7 @@ if(isset($_POST['direction']) && !empty($_POST['direction'])){
             $_POST['start_date'] = strtotime ( '-4 weeks' , strtotime ( $_POST['start_date'] ) ) ;
             $_POST['start_date'] = date("d-m-Y", $_POST['start_date']);
         }else{
-            $_POST['start_date'] = date("d-m-Y", strtotime("-8 weeks"));
+            $_POST['start_date'] = date("d-m-Y", strtotime("-13 weeks"));
             $_POST['end_date'] = date("d-m-Y", strtotime("+8 weeks"));
         }
     }elseif($_POST['direction'] == 'forward'){
@@ -27,7 +27,7 @@ if(isset($_POST['direction']) && !empty($_POST['direction'])){
             $_POST['end_date'] = date("d-m-Y", $_POST['end_date']);
         }else{
             $_POST['start_date'] = date("d-m-Y");
-            $_POST['end_date'] = date("d-m-Y", strtotime("+16 weeks"));
+            $_POST['end_date'] = date("d-m-Y", strtotime("+12 weeks"));
         }
     }
 }
@@ -70,12 +70,28 @@ if(isset($_POST) && !empty($_POST['start_date']) && !empty($_POST['end_date'])){
 
 // ADD filter if last-filter has been selected use that value else default to 2 weeks
 if(isset($_POST) && !empty($_POST['last-filter'])){
-    if($_POST['last-filter'] != 'all'){
-        $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL :last WEEK)";
-        $paramArray[':last'] = intval($_POST['last-filter']);
+    switch ($_POST['last-filter']) {
+        case 'last-4':
+            $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 4 WEEK)";
+            break;
+        case 'last-12':
+            $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            break;
+        case 'not-12':
+            $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            break;
+        case 'due-4':
+            $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            break;
+        case 'due-12':
+            $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            break;
+        default:
+            $where .= "";
+            break;
     }
 }else{
-    $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)";
+    $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
 }
 
 // Checking for psv-filter and then only showing vehicles that have had PSV checks done based on all the other criteria
@@ -304,20 +320,15 @@ $temp = "";
                 <div class="col-lg-3 col-md-6 col-xs-6">
                     <div class="sf-company-filter search-group">
                         <label for="company-filter">
-                            Show Vehicles Last Tested:
+                            Vehicles Filter
                         </label>
                         <select name="last-filter" id="last-filter" class="form-control">
-                            <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>Show All</option>
-                            <option value="26" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="26") echo 'selected'; ?>>26 Weeks</option>
-                            <option value="20" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="20") echo 'selected'; ?>>20 Weeks</option>
-                            <option value="16" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="16") echo 'selected'; ?>>16 Weeks</option>
-                            <option value="12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="12") echo 'selected'; ?>>12 Weeks</option>
-                            <option value="8" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="8") echo 'selected'; ?>>8 Weeks</option>
-                            <option value="6" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="6") echo 'selected'; ?>>6 Weeks</option>
-                            <option value="4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="4") echo 'selected'; ?>>4 Weeks</option>
-                            <option value="2" <?php if((isset($_POST["last-filter"]) && $_POST["last-filter"]=="2") || !isset($_POST["last-filter"])) echo 'selected'; ?>>2 Weeks</option>
-                            <option value="1" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="1") echo 'selected'; ?>>1 Weeks</option>
-                        </select>
+                            <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="all") echo 'selected'; ?>>Show All</option>
+                            <option value="last-4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-4") echo 'selected'; ?>>Inspected In Last 4 weeks</option>
+                            <option value="last-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-12" || !isset($_POST["last-filter"])) echo 'selected'; ?>>Inspected In Last 12 weeks</option>
+                            <option value="not-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="not-12") echo 'selected'; ?>>Not Inspected in Last 12 weeks</option>
+                            <option value="due-4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="due-4") echo 'selected'; ?>>Due Inspection in next 4 weeks</option>
+                            <option value="due-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="due-12") echo 'selected'; ?>>Due Inspection in next 12 weeks</option>                        </select>
                     </div><!-- sf-company-filter -->
                 </div>
 
@@ -403,7 +414,7 @@ $temp = "";
                                     echo '<br/>'.'<a href = "/vehicle-dashboard.php?company-filter='.$data['company_id'].'" style = "color:#428bca;">'.$data["company_name"].'</a>';
                                 }
                                 if(isset($data['psv_date']) && !empty($data['psv_date'])){
-                                    echo '<br/>PSV - '.date('Y M d', strtotime($data['psv_date']));
+                                    echo '<br/>PSV - '.date('d M Y', strtotime($data['psv_date']));
                                 }
                             ?>
                         </td>
@@ -427,7 +438,7 @@ $temp = "";
                                                     $tachoIcon = '';
                                                     $oilIcon = '';
                                                     $engineIcon = '';
-                                                    $title_text = 'PSV Inspection: '.$survey['date'];
+                                                    $title_text = 'PSV Inspection: '.date('d-M-Y', strtotime($survey['date']));
                                                     if(isset($survey['tachograph']) && !empty($survey['tachograph'])){
                                                         $title_text .= '<br/>Tachograph Preformed';
                                                         $tachoIcon = '<div class ="tacho-icon"><span>T</span></div>';
@@ -455,7 +466,7 @@ $temp = "";
                                                     $tachoIcon = '';
                                                     $oilIcon = '';
                                                     $engineIcon = '';
-                                                    $title_text = 'Scheduled Inspection: '.$survey['date'];
+                                                    $title_text = 'Scheduled Inspection: '.date('d-M-Y', strtotime($survey['date']));
                                                     if(isset($survey['tachograph']) && !empty($survey['tachograph'])){
                                                         $title_text .= '<br/>Tachograph Preformed';
                                                         $tachoIcon = '<div class ="tacho-icon"><span>T</span></div>';
@@ -482,7 +493,7 @@ $temp = "";
                                                     $tachoIcon = '';
                                                     $oilIcon = '';
                                                     $engineIcon = '';
-                                                    $title_text = 'Unscheduled Inspection: '.$survey['date'];
+                                                    $title_text = 'Unscheduled Inspection: '.date('d-M-Y', strtotime($survey['date']));
                                                     if(isset($survey['tachograph']) && !empty($survey['tachograph'])){
                                                         $title_text .= '<br/>Tachograph Preformed';
                                                         $tachoIcon = '<div class ="tacho-icon"><span>T</span></div>';

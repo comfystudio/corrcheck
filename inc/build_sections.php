@@ -174,8 +174,8 @@ function create_corrCheck_Vehicle_Details($db){	?>
             <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success" title = "add a vehicle"><i class="fa fa-plus" aria-hidden="true"></i></a>
         <?php } // PSV Inspection?
         elseif($question_id == 175){?>
-            <label class="switch">
-                <input type="hidden" name="<?php echo $question_name ?>"value="0">
+            <label class="switch" for="<?php //echo $question_name?>">
+                <input type="hidden" name="<?php echo $question_name ?>" value="0">
                 <input type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1">
                 <div class="slider round"></div>
             </label>
