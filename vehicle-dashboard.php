@@ -134,6 +134,7 @@ foreach($rows as $key => $row){
               LEFT JOIN tbl_survey_responses t2 ON t2.survey_ID = t1.survey_ID
             WHERE t1.survey_ID IN (" . $row['survey_ids'] . ")
                 AND (t1.survey_date BETWEEN '" . date('Y-m-d', strtotime($start_date)) . "' AND '" . date('Y-m-d', strtotime($end_date)) . "')
+                AND t1.status_id = 3
             ORDER BY t1.survey_date DESC
         ";
         try {

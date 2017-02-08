@@ -151,6 +151,7 @@ foreach($rows as $key => $row){
               LEFT JOIN tbl_survey_responses t2 ON t2.survey_ID = t1.survey_ID
             WHERE t1.survey_ID IN (" . $row['survey_ids'] . ")
                 AND (t1.survey_date BETWEEN '" . date('Y-m-d', strtotime($start_date)) . "' AND '" . date('Y-m-d', strtotime($end_date)) . "')
+                AND t1.status_id = 3
             ORDER BY t1.survey_date DESC
         ";
         try {
@@ -377,15 +378,15 @@ $temp = "";
                     <!-- For loop to put weeks in header -->
                     <?php for($i = 1; $i <= $number_weeks; $i++){?>
                         <?php
-                        if($i == $today) {
-                            $class = "today";
-                        }elseif(($i % 2) == 1){
-                            $class = "odd";
-                        }else{
-                            $class = "";
-                        }
+                            if($i == $today) {
+                                $class = "today";
+                            }elseif(($i % 2) == 1){
+                                $class = "odd";
+                            }else{
+                                $class = "";
+                            }
                         ?>
-                        <th class = "dashboard-table-row text-center"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
+                        <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
                     <?php } ?>
                 </tr>
                 </thead>
