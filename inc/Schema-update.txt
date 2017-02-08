@@ -82,25 +82,17 @@ DELETE FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=171;
 DELETE FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=172;
 DELETE FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=173;
 
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=1 WHERE  `question_ID`=175;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=175;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=2 WHERE  `question_ID`=176;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=176;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=3 WHERE  `question_ID`=177;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=177;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=4 WHERE  `question_ID`=11;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=11;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=5 WHERE  `question_ID`=12;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=12;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=6 WHERE  `question_ID`=13;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=13;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=7 WHERE  `question_ID`=14;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=14;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=8 WHERE  `question_ID`=15;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=15;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=9 WHERE  `question_ID`=16;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=16;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=10 WHERE  `question_ID`=17;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=17;
-UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=11 WHERE  `question_ID`=18;
-SELECT `question_ID`, `question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required` FROM `corrcheck`.`tbl_questions` WHERE  `question_ID`=18;
+
+ALTER TABLE `tbl_surveys`
+	ADD COLUMN `invoice_num` VARCHAR(50) NOT NULL AFTER `vehicle_reg`;
+
+INSERT INTO `corrcheck`.`tbl_questions` (`question_text`, `type_ID`, `section_ID`, `ind_trailers`, `question_seqno`, `ind_required`) VALUES ('Invoice Number', 11, 1, 'Y', 4, 'N');
+
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=5 WHERE  `question_ID`=13;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=7 WHERE  `question_ID`=11;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=6 WHERE  `question_ID`=12;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=8 WHERE  `question_ID`=14;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=9 WHERE  `question_ID`=15;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=10 WHERE  `question_ID`=16;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=11 WHERE  `question_ID`=17;
+UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=12 WHERE  `question_ID`=18;

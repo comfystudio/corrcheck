@@ -30,6 +30,7 @@ class Survey {
     var $psv;
     var $psvPresented;
     var $psvNotes;
+    var $invoiceNum;
 
 	// Other Details
 	var $completedByID;
@@ -84,6 +85,7 @@ class Survey {
             $this->psv               = $this->surveyDetailsArray["psv"];
             $this->psvPresented      = $this->surveyDetailsArray["psv_presented"];
             $this->psvNotes          = $this->surveyDetailsArray["psv_notes"];
+            $this->invoiceNum        = $this->surveyDetailsArray["invoice_num"];
 
 			// Gat and Format the date
 			$date = DateTime::createFromFormat('Y-m-d', $this->surveyDetailsArray["survey_date"]);			
@@ -130,6 +132,7 @@ class Survey {
             $this->psv               = $this->printSurveyDetails("psv");
             $this->psvPresented      = $this->printSurveyDetails("psv_presented");
             $this->psvNotes          = $this->printSurveyDetails("psv_notes");
+            $this->invoiceNum        = $this->printSurveyDetails("invoice_num");
 
 			// Get the axle responses for this survey
 			$this->surveyAxleResponses = $this->getAxleResponses();
@@ -458,9 +461,9 @@ class Survey {
                 // Need to get vehicles for Vehicle reg field
                 $query = "
                 SELECT
-                    t1.reg
+                    t1.reg, t1.make, t1.type
                 FROM tbl_vehicles t1
-                WHERE t1.is_active = 1
+                WHERE t1.is_active = 1 AND t1.company_id = $this->companyID
                 ORDER BY t1.reg ASC
             ";
                 try {
@@ -543,18 +546,18 @@ class Survey {
                     elseif($question_id == 12){?>
                         <select id="<?php echo $question_name; ?>" name="<?php echo $question_name; ?>" class="selectpicker" data-width="180px">
                             <?php foreach($vehicles as $key => $vehicle){?>
-                                <option value="<?php echo $vehicle['reg'] ?>" <?php $this->isDetailSelected($question_name, $vehicle['reg']); ?>> <?php echo $vehicle['reg']?></option>
+                                <option value="<?php echo $vehicle['reg'] ?>" <?php $this->isDetailSelected($question_name, $vehicle['reg']); ?> data-make="<?php echo $vehicle['make']?>" data-type="<?php echo $vehicle['type']?>"> <?php echo $vehicle['reg']?></option>
                             <?php } ?>
                         </select>
                         <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success" title = "add a vehicle"><i class="fa fa-plus" aria-hidden="true"></i></a>
                     <?php } // PSV Inspection?
                     elseif($question_id == 175){?>
-                        <label class="switch">
+                        <label class="switch" for="<?php echo $question_name?>">
                             <input type="hidden" name="<?php echo $question_name ?>" value="0">
                             <input type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1" <?php if(isset($question_name) && $this->getValue($question_name) == 1){echo "checked";}?>>
                             <div class="slider round"></div>
                         </label>
-                        <label class = "right-hand-label">PSV</label>
+                        <span class = "right-hand-label">PSV</span>
                     <?php }
                     elseif($question_id == 176){ ?>
                         <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="form-control">
@@ -1405,6 +1408,9 @@ function getValue($questionName){
             break;
         case("veh_dets_175"):
             return $this->psv;
+            break;
+        case("veh_dets_178"):
+            echo $this->invoiceNum;
             break;
 
 	} // end switch

@@ -14,6 +14,9 @@
 					<td>
 						Inspection No.
 					</td>
+                    <td>
+                        Invoice Number
+                    </td>
 					<td>
 						Date
 					</td>
@@ -42,6 +45,9 @@
                                 echo '<a href = "view-report.php?survey_id='.$pending_row["survey_ID"].'" style = "color:#428bca;">'.$pending_row["survey_ID"].'</a>';
 							?>
 						</td>
+                        <td>
+                            <?php  echo $pending_row["invoice_num"]; ?>
+                        </td>
 						<td>
 							<?php  echo $pending_row["survey_date"]; ?>
 						</td>

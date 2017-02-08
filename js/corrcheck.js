@@ -166,12 +166,18 @@
      * ====================================================================================== */
     $( document ).ready(function() {
         if($('#veh_dets_175').length) {
-            $("label[for='veh_dets_175']").html('Scheduled');
+            $("label[for='veh_dets_175']").first().html('Scheduled');
             if ($('#veh_dets_174').prop('checked') == false) {
                 $('#veh_dets_175').parent().parent().parent().hide();
                 $('#veh_dets_176').parent().parent().hide();
                 $('#veh_dets_177').parent().parent().hide();
                 $('#veh_dets_175').attr('checked', false);
+                $('.app-col-main').animate({
+                    backgroundColor: "#e7e7e8"
+                }, 1000);
+                $('#section-nav').animate({
+                    backgroundColor: "#242424"
+                }, 1000);
             }
             $('#veh_dets_174').change(function () {
                 if ($('#veh_dets_174').prop('checked') == false) {
@@ -179,13 +185,16 @@
                     $('#veh_dets_176').parent().parent().hide();
                     $('#veh_dets_177').parent().parent().hide();
                     $('#veh_dets_175').attr('checked', false);
+                    $('.app-col-main').animate({
+                        backgroundColor: "#e7e7e8"
+                    }, 1000);
+                    $('#section-nav').animate({
+                        backgroundColor: "#242424"
+                    }, 1000);
                 } else {
                     $('#veh_dets_175').parent().parent().parent().show();
-                    $('#veh_dets_176').parent().parent().show();
-                    $('#veh_dets_177').parent().parent().show();
                 }
             })
-
 
 
             //Set background and style to some sort of warning if PSV
@@ -225,7 +234,37 @@
                 }
             })
         }
-    })
+
+        // ajax the create / edit inspection company selection, so it updates the vehicle regs
+        $('#veh_dets_13').change(function (){
+            var id = $(this).val();
+            $.ajax({
+                url: '_ajax-get-reg-with-companyid.php',
+                type: 'POST',
+                data: { id: id},
+                success: function(response){
+                    //console.log(response);
+
+                    $('#veh_dets_12').empty();
+                    $('#veh_dets_12').append(response);
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(){
+                    alert('failure');
+                }
+            });
+        });
+
+        //When user selects vehicle reg auto update type and make
+        $('.selectpicker').change(function (){
+            var make = $(this).find("option:selected").data("make");
+            var type = $(this).find("option:selected").data("type");
+            $('#veh_dets_11').val(type);
+            $('#veh_dets_14').val(make);
+        })
+
+
+    });
 
 
 	// ===================================== //

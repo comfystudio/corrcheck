@@ -14,6 +14,9 @@
 					<td>
 						Inspection No.
 					</td>
+                    <td>
+                        Invoice Number
+                    </td>
 					<td>
 						Date
 					</td>
@@ -42,6 +45,9 @@
                                 echo '<a href = "view-report.php?survey_id='.$saved_row["survey_ID"].'" style = "color:#428bca;">'.$saved_row["survey_ID"].'</a>';
 							?>
 						</td>
+                        <td>
+                            <?php  echo $saved_row["invoice_num"]; ?>
+                        </td>
 						<td>
 							<?php  echo $saved_row["survey_date"]; ?>
 						</td>

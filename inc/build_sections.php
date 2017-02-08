@@ -85,9 +85,9 @@ function create_corrCheck_Vehicle_Details($db){	?>
     // Need to get vehicles for Vehicle reg field
     $query = "
             SELECT
-                t1.reg
+                t1.reg, t1.make, t1.type
             FROM tbl_vehicles t1
-            WHERE t1.is_active = 1
+            WHERE t1.is_active = 1 AND t1.company_id = 26
             ORDER BY t1.reg ASC
         ";
     try {
@@ -135,6 +135,7 @@ function create_corrCheck_Vehicle_Details($db){	?>
     ?>
     
     <div class="question_row cf form-group">
+
       <label for="<?php echo $question_name; ?>"  class="col-sm-3 control-label"><?php echo $question_text; ?>:</label>
       <div class="col-sm-4">
 
@@ -168,18 +169,18 @@ function create_corrCheck_Vehicle_Details($db){	?>
         elseif($question_id == 12){?>
             <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="selectpicker" data-live-search="true" data-width="180px">
                 <?php foreach($vehicles as $key => $vehicle){?>
-                    <option value="<?php echo $vehicle['reg'] ?>" > <?php echo $vehicle['reg']?></option>
+                    <option value="<?php echo $vehicle['reg'] ?>" data-make="<?php echo $vehicle['make']?>" data-type="<?php echo $vehicle['type']?>"> <?php echo $vehicle['reg']?></option>
                 <?php } ?>
             </select>
             <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success" title = "add a vehicle"><i class="fa fa-plus" aria-hidden="true"></i></a>
         <?php } // PSV Inspection?
         elseif($question_id == 175){?>
-            <label class="switch" for="<?php //echo $question_name?>">
+            <label class="switch" for="<?php echo $question_name?>">
                 <input type="hidden" name="<?php echo $question_name ?>" value="0">
                 <input type="checkbox" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" value="1">
-                <div class="slider round"></div>
+                <span class="slider round"></span>
             </label>
-            <label class = "right-hand-label">PSV</label>
+            <span class = "right-hand-label">PSV</span>
         <?php }
         elseif($question_id == 176){ ?>
             <select name="<?php echo $question_name; ?>" id="<?php echo $question_name; ?>" class="form-control">
