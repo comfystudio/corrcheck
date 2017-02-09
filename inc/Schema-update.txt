@@ -96,3 +96,9 @@ UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=9 WHERE  `question_ID`=1
 UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=10 WHERE  `question_ID`=16;
 UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=11 WHERE  `question_ID`=17;
 UPDATE `corrcheck`.`tbl_questions` SET `question_seqno`=12 WHERE  `question_ID`=18;
+
+ALTER TABLE `tbl_companies`
+	ADD COLUMN `user_start` INT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `service_interval`;
+
+ALTER TABLE `tbl_companies`
+	ADD COLUMN `start_time` DATE NULL AFTER `user_start`;

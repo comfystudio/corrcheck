@@ -286,14 +286,14 @@ if(!empty($_POST)){
 
                     <input type="hidden" class="form-control form-control" name="user_start" id="user_start" value="0"/>
                     <div class="question_row cf form-group">
-                        <label for="vehicle_permission" class="col-sm-3 control-label">Use Custom Inspection Start Date?:</label>
+                        <label for="vehicle_permission" class="col-sm-3 control-label">Use Fixed Schedule?:</label>
                         <div class="col-sm-4">
                             <input type="checkbox" class="form-control form-control" name="user_start" id="user_start" value="1" <?php if ((!empty($errorArray)) && isset($_POST['user_start']) && ($_POST['user_start'] == 1)) {echo 'checked="checked"';}elseif(!empty($vehicle['user_start']) && $vehicle['user_start'] == 1){echo 'checked="checked"';} ?>/>
                         </div>
                     </div>
 
                     <div class="question_row cf form-group">
-                        <label for="start_time" class="col-sm-3 control-label">Custom Start Time:</label>
+                        <label for="start_time" class="col-sm-3 control-label">Custom Start Date:</label>
 
                         <div class="col-sm-4">
                             <input type="text" class="form-control date-input form-control datepicker" name="start_time" data-date-format="dd-mm-yyyy" value="<?php if (!empty($errorArray)) { echo htmlspecialchars(date('d-m-Y', strtotime($_POST['start_time'])));}elseif(!empty($vehicle['start_time'])){echo date('d-m-Y', strtotime($vehicle['start_time']));}?>"/>

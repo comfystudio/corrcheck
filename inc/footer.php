@@ -30,10 +30,11 @@
 <!--    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>-->
     <script src="js/bootstrap.min.js"></script>
     <script src="dist/jquery.validate.js"></script>
-    <script src="js/bootstrap-datepicker.js"></script>
     <?php if (!stripos($_SERVER['REQUEST_URI'], 'vehicle-dashboard.php')){?>
         <script src="js/jquery-ui.min.js"></script>
     <?php } ?>
+    <script src="js/bootstrap-datepicker.js"></script>
+
     <script src="js/corrcheck.js"></script>
 
     <?php if (isset($cameraScript) && $cameraScript == true){?>

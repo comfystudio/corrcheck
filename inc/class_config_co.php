@@ -30,6 +30,8 @@ class Config_Company {
 	var $telno;
 	var $faxno;
     var $service_interval;
+	var $user_start;
+	var $start_time;
     var $vehicle_permission;
     var $is_active;
 
@@ -93,6 +95,8 @@ class Config_Company {
 			$this->telno 		= "";
 			$this->faxno 		= "";
             $this->service_interval = "";
+			$this->user_start	= "";
+			$this->start_time	= "";
             $this->vehicle_permission = "";
             $this->is_active    = "";
 
@@ -156,6 +160,9 @@ class Config_Company {
 	  $this->telno = $row["telno"];        
 	  $this->faxno = $row["faxno"];
       $this->service_interval = $row['service_interval'];
+	  $this->user_start = $row['user_start'];
+	  $this->start_time = $row['start_time'];
+
       $this->vehicle_permission = $row['vehicle_permission'];
       $this->is_active = $row['is_active'];
 
@@ -186,6 +193,8 @@ class Config_Company {
 	  	$this->telno = $post_array["telno"];        
 	  	$this->faxno = $post_array["faxno"];
         $this->service_interval = $post_array['service_interval'];
+		$this->user_start = $post_array['user_start'];
+		$this->start_time = $post_array['start_time'];
         $this->vehicle_permission = $post_array['vehicle_permission'];
         $this->is_active = $post_array['is_active'];
 
@@ -215,6 +224,8 @@ class Config_Company {
 		$this->companyVarArray["telno"] = $this->telno;
         $this->companyVarArray["faxno"] = $this->faxno;
         $this->companyVarArray['service_interval'] = $this->service_interval;
+		$this->companyVarArray['user_start'] = $this->user_start;
+		$this->companyVarArray['start_time'] = $this->start_time;
         $this->companyVarArray['vehicle_permission'] = $this->vehicle_permission;
         $this->companyVarArray['is_active'] = $this->is_active;
 

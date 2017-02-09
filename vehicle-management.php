@@ -183,7 +183,7 @@
             <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=company">Company <?php if(isset($_GET['sort']) && $_GET['sort'] == 'company'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
             <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=user">User <?php if(isset($_GET['sort']) && $_GET['sort'] == 'user'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
             <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=psv">PSV Date <?php if(isset($_GET['sort']) && $_GET['sort'] == 'psv'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=inspection">Custom Inspection Date? <?php if(isset($_GET['sort']) && $_GET['sort'] == 'inspection'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=inspection">Fixed Schedule? <?php if(isset($_GET['sort']) && $_GET['sort'] == 'inspection'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
             <th class="text-center"><i class="fa fa-flash"></i></th>
         </tr>
 

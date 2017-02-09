@@ -25,6 +25,8 @@ class Company_Form {
 	var $telno;
 	var $faxno;
     var $service_interval;
+	var $user_start;
+	var $start_time;
     var $vehicle_permission;
     var $is_active;
     var $error_check;
@@ -67,6 +69,8 @@ class Company_Form {
         $this->telno 		= $company_vars["telno"];
         $this->faxno        = $company_vars['faxno'];
         $this->service_interval = $company_vars['service_interval'];
+		$this->user_start	= $company_vars['user_start'];
+		$this->start_time	= $company_vars['start_time'];
         $this->vehicle_permission = $company_vars['vehicle_permission'];
         $this->is_active   = $company_vars['is_active'];
 
@@ -171,6 +175,15 @@ class Company_Form {
             $this->service_interval = format_string($_POST['service_interval']);
         }
 
+		//Need to reformat the date to a more sql friendly format
+		if(!empty($_POST['start_time'])){
+			$this->start_time = date('Y-m-d', strtotime($_POST['start_time']));
+		}
+
+		if(!empty($_POST['user_start'])){
+			$this->user_start = format_string($_POST['user_start']);
+		}
+
         if(!empty($_POST['vehicle_permission'])){
             $this->vehicle_permission = format_string($_POST['vehicle_permission']);
         }
@@ -215,6 +228,8 @@ class Company_Form {
 		                    telno = :telno,
 		                    faxno = :faxno,
 		                    service_interval = :service_interval,
+		                    user_start = :user_start,
+		                    start_time = :start_time,
 		                    vehicle_permission = :vehicle_permission,
 		                    is_active = :is_active,
 		                    email_2 = :email_2,
@@ -241,6 +256,8 @@ class Company_Form {
 	                ':telno' => $_POST['telno'], 
 	                ':faxno' => $_POST['faxno'],
                     ':service_interval' => $_POST['service_interval'],
+					':user_start' => $_POST['user_start'],
+					':start_time' => $this->start_time,
                     ':vehicle_permission' => $_POST['vehicle_permission'],
                     ':is_active' => $_POST['is_active'],
 	                ':email_2' 		=>$_POST["add_email_2"],
@@ -269,6 +286,8 @@ class Company_Form {
 	                    telno,
 	                    faxno,
 	                    service_interval,
+	                    user_start,
+	                    start_time,
 	                    vehicle_permission,
 	                    is_active,
 	                    email_2,
@@ -290,6 +309,8 @@ class Company_Form {
 	                    :telno,
 	                    :faxno,
 	                    :service_interval,
+	                    :user_start,
+	                    :start_time,
 	                    :vehicle_permission,
 	                    :is_active,
 	                    :email_2,
@@ -314,6 +335,8 @@ class Company_Form {
 	                ':telno' 		=> $_POST['telno'], 
 	                ':faxno' 		=> $_POST['faxno'],
                     ':service_interval' => $_POST['service_interval'],
+					':user_start' 	=> $_POST['user_start'],
+					':start_time' 	=> $this->start_time,
                     ':vehicle_permission' => $_POST['vehicle_permission'],
                     ':is_active'    => $_POST['is_active'],
 	                ':email_2' 		=>$_POST["add_email_2"],
@@ -332,7 +355,7 @@ class Company_Form {
 	        // $this->insertEmails();	        
 
             try 
-            { 
+            {
                 // Execute the query to create the user 
                 $stmt = $this->db->prepare($query);
                 $result = $stmt->execute($query_params);
@@ -462,6 +485,22 @@ class Company_Form {
 <!--                                <input type="checkbox" class="form-control form-control" name="vehicle_permission" id="vehicle_permission" value="1" --><?php //if(isset($this->vehicle_permission) && $this->vehicle_permission == 1){echo 'checked';}?><!--/>-->
 <!--                            </div>-->
 <!--                        </div>-->
+
+						<input type="hidden" class="form-control form-control" name="user_start" id="user_start" value="0"/>
+						<div class="question_row cf form-group">
+							<label for="vehicle_permission" class="col-sm-3 control-label">Use Fixed Schedule?:</label>
+							<div class="col-sm-4">
+								<input type="checkbox" class="form-control form-control" name="user_start" id="user_start" value="1" <?php if(isset($this->user_start) && $this->user_start == 1){echo 'checked';}?>/>
+							</div>
+						</div>
+
+						<div class="question_row cf form-group">
+							<label for="start_time" class="col-sm-3 control-label">Custom Start Date:</label>
+
+							<div class="col-sm-4">
+								<input type="text" class="form-control date-input form-control datepicker" name="start_time" data-date-format="dd-mm-yyyy" value="<?php if(isset($this->start_time) && !empty($this->start_time)){echo date('d-m-Y', strtotime($this->start_time));}?>"/>
+							</div>
+						</div>
 
                         <input type="hidden" class="form-control form-control" name="is_active" id="is_active" value="2"/>
                         <div class="question_row cf form-group">
