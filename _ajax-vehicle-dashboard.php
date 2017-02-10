@@ -217,46 +217,13 @@ foreach($rows as $key => $row){
         }
     }
 
-    // We now need to build a list of scheduled inspections which can be based on many factors.
-    $time_interval = 10;
-    if(isset($row['service_interval']) && !empty($row['service_interval'])){
-        $time_interval = $row['service_interval'];
-    }elseif(isset($row['company_service_interval']) && !empty($row['company_service_interval'])){
-        $time_interval = $row['company_service_interval'];
-    }
     //We now have time interval based on hierarchy of vehicle / Company / default 10
-    if(isset($row['user_start']) && $row['user_start'] == 0){
-        // If the vehicle is not using a custom start date we try to use most recent inspection
-        if(isset($rows[$key]['surveys']) && !empty($rows[$key]['surveys'])) {
-            $array_keys = array_keys($rows[$key]['surveys']);
-            if (isset($array_keys) && !empty($array_keys)) {
-                $origin_date = date('Y-m-d', strtotime($rows[$key]['surveys'][$array_keys[0]]['date']));
-            }
-        }else{
-            // If we don't have recent inspection we shall use psv date...think this is the best fallback
-            $origin_date = $row['psv_date'];
-        }
-        $count = 0;
-        // This while loop is working down to start date
-        while(strtotime($origin_date) > strtotime($start_date)) {
-            $origin_date = date('Y-m-d', strtotime("-".$time_interval." Week", strtotime($origin_date)));
-        }
-
-        // This while loop is working up to end date
-        while(strtotime($origin_date) <= strtotime($end_date)) {
-            if(strtotime($origin_date) >= strtotime($start_date)) {
-                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
-                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
-                if($rows[$key]['schedules'][$count]['date_weeks'] == 0){
-                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
-                }
-            }
-            $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
-            $count++;
-        }
-
-    }else{
+    if(isset($row['user_start']) && $row['user_start'] == 1){
         // If the vehicle is using a custom start date.
+        $time_interval = 10;
+        if(isset($row['service_interval']) && !empty($row['service_interval'])) {
+            $time_interval = $row['service_interval'];
+        }
         $count = 0;
         $origin_date = $row['start_time'];
         while(strtotime($origin_date) <= strtotime($end_date)) {
@@ -268,6 +235,60 @@ foreach($rows as $key => $row){
                 }
             }
             $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
+            $count++;
+        }
+    }elseif(isset($row['company_user_start']) && $row['company_user_start'] == 1){
+        // If the vehicle is using a custom start date.
+        $time_interval = 10;
+        if(isset($row['company_service_interval']) && !empty($row['company_service_interval'])) {
+            $time_interval = $row['company_service_interval'];
+        }
+        $count = 0;
+        $origin_date = $row['company_start_time'];
+        while(strtotime($origin_date) <= strtotime($end_date)) {
+            if(strtotime($origin_date) >= strtotime($start_date)) {
+                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
+                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
+                if($rows[$key]['schedules'][$count]['date_weeks'] == 0){
+                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
+                }
+            }
+            $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
+            $count++;
+        }
+    }else{
+        $time_interval = 10;
+        if(isset($row['service_interval']) && !empty($row['service_interval'])){
+            $time_interval = $row['service_interval'];
+        }elseif(isset($row['company_service_interval']) && !empty($row['company_service_interval'])){
+            $time_interval = $row['company_service_interval'];
+        }
+        // If the vehicle is not using a custom start date we try to use most recent inspection
+        if (isset($rows[$key]['surveys']) && !empty($rows[$key]['surveys'])) {
+            $array_keys = array_keys($rows[$key]['surveys']);
+            if (isset($array_keys) && !empty($array_keys)) {
+                $origin_date = date('Y-m-d', strtotime($rows[$key]['surveys'][$array_keys[0]]['date']));
+            }
+        } else {
+            // If we don't have recent inspection we shall use psv date...think this is the best fallback
+            $origin_date = $row['psv_date'];
+        }
+        $count = 0;
+        // This while loop is working down to start date
+        while (strtotime($origin_date) > strtotime($start_date)) {
+            $origin_date = date('Y-m-d', strtotime("-" . $time_interval . " Week", strtotime($origin_date)));
+        }
+
+        // This while loop is working up to end date
+        while (strtotime($origin_date) <= strtotime($end_date)) {
+            if (strtotime($origin_date) >= strtotime($start_date)) {
+                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
+                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
+                if ($rows[$key]['schedules'][$count]['date_weeks'] == 0) {
+                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
+                }
+            }
+            $origin_date = date('Y-m-d', strtotime("+" . $time_interval . " Week", strtotime($origin_date)));
             $count++;
         }
     }
@@ -323,13 +344,14 @@ $temp = "";
                         <label for="company-filter">
                             Vehicles Filter
                         </label>
-                        <select name="last-filter" id="last-filter" class="form-control">
+                        <select name="last-filter" id="last-filter" class="form-control" title = "last-filter">
                             <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="all") echo 'selected'; ?>>Show All</option>
                             <option value="last-4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-4") echo 'selected'; ?>>Inspected In Last 4 weeks</option>
                             <option value="last-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-12" || !isset($_POST["last-filter"])) echo 'selected'; ?>>Inspected In Last 12 weeks</option>
                             <option value="not-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="not-12") echo 'selected'; ?>>Not Inspected in Last 12 weeks</option>
                             <option value="due-4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="due-4") echo 'selected'; ?>>Due Inspection in next 4 weeks</option>
-                            <option value="due-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="due-12") echo 'selected'; ?>>Due Inspection in next 12 weeks</option>                        </select>
+                            <option value="due-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="due-12") echo 'selected'; ?>>Due Inspection in next 12 weeks</option>
+                        </select>
                     </div><!-- sf-company-filter -->
                 </div>
 
@@ -337,7 +359,7 @@ $temp = "";
                 <div class="col-lg-2 col-md-6 col-xs-6">
                     <div class="sf-company-filter search-group">
                         <label for="psv-filter">Show Only PSVs?</label>
-                        <input class="form-control" type="checkbox" name="psv-filter" value="1" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?>>
+                        <input class="form-control" type="checkbox" name="psv-filter" value="1" title="psv-filter" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?>>
                     </div>
                 </div>
                 <!-- END OF FILTER FOR PSV -->
@@ -365,8 +387,6 @@ $temp = "";
                     <button type="submit" class="btn btn-success">Search</button>
                 </div>
             </div>
-
-<!--            <div class="pull-right"></div>-->
         </form>
     </div>
     <?php if(!empty($rows)) {?>
@@ -399,10 +419,12 @@ $temp = "";
                                     $string = 'Motor Vehicle';
                                 }elseif($data['type'] == 'trailer'){
                                     $string = 'trailer';
+                                }else{
+                                    $string = 'error';
                                 }
                             ?>
                             <td colspan="<?php echo 2+$number_weeks?>" class = "table-divide"><strong><?php echo strtoupper($string);?></strong></td>
-                        <tr>
+                        </tr>
                         <?php $temp = $data['type'];?>
                     <?php } ?>
                     <tr>

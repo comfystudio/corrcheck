@@ -201,15 +201,52 @@ foreach($rows as $key => $row){
         }
     }
 
-    // We now need to build a list of scheduled inspections which can be based on many factors.
-    $time_interval = 10;
-    if(isset($row['service_interval']) && !empty($row['service_interval'])){
-        $time_interval = $row['service_interval'];
-    }elseif(isset($row['company_service_interval']) && !empty($row['company_service_interval'])){
-        $time_interval = $row['company_service_interval'];
-    }
     //We now have time interval based on hierarchy of vehicle / Company / default 10
-    if(isset($row['user_start']) && $row['user_start'] == 0) {
+    if(isset($row['user_start']) && $row['user_start'] == 1){
+        // If the vehicle is using a custom start date.
+        $time_interval = 10;
+        if(isset($row['service_interval']) && !empty($row['service_interval'])) {
+            $time_interval = $row['service_interval'];
+        }
+        $count = 0;
+        $origin_date = $row['start_time'];
+        while(strtotime($origin_date) <= strtotime($end_date)) {
+            if(strtotime($origin_date) >= strtotime($start_date)) {
+                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
+                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
+                if($rows[$key]['schedules'][$count]['date_weeks'] == 0){
+                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
+                }
+            }
+            $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
+            $count++;
+        }
+    }elseif(isset($row['company_user_start']) && $row['company_user_start'] == 1){
+        // If the vehicle is using a custom start date.
+        $time_interval = 10;
+        if(isset($row['company_service_interval']) && !empty($row['company_service_interval'])) {
+            $time_interval = $row['company_service_interval'];
+        }
+        $count = 0;
+        $origin_date = $row['company_start_time'];
+        while(strtotime($origin_date) <= strtotime($end_date)) {
+            if(strtotime($origin_date) >= strtotime($start_date)) {
+                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
+                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
+                if($rows[$key]['schedules'][$count]['date_weeks'] == 0){
+                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
+                }
+            }
+            $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
+            $count++;
+        }
+    }else{
+        $time_interval = 10;
+        if(isset($row['service_interval']) && !empty($row['service_interval'])){
+            $time_interval = $row['service_interval'];
+        }elseif(isset($row['company_service_interval']) && !empty($row['company_service_interval'])){
+            $time_interval = $row['company_service_interval'];
+        }
         // If the vehicle is not using a custom start date we try to use most recent inspection
         if (isset($rows[$key]['surveys']) && !empty($rows[$key]['surveys'])) {
             $array_keys = array_keys($rows[$key]['surveys']);
@@ -238,22 +275,7 @@ foreach($rows as $key => $row){
             $origin_date = date('Y-m-d', strtotime("+" . $time_interval . " Week", strtotime($origin_date)));
             $count++;
         }
-    }elseif(isset($row['user_start']) && $row['user_start'] == 1){
-        // If the vehicle is using a custom start date.
-        $count = 0;
-        $origin_date = $row['start_time'];
-        while(strtotime($origin_date) <= strtotime($end_date)) {
-            if(strtotime($origin_date) >= strtotime($start_date)) {
-                $rows[$key]['schedules'][$count]['date'] = date('m/d/Y', strtotime($origin_date));
-                $rows[$key]['schedules'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($origin_date)));
-                if($rows[$key]['schedules'][$count]['date_weeks'] == 0){
-                    $rows[$key]['schedules'][$count]['date_weeks'] = 1;
-                }
-            }
-            $origin_date = date('Y-m-d', strtotime("+".$time_interval." Week", strtotime($origin_date)));
-            $count++;
-        }
-    }elseif
+    }
 }
 
 //reverse array so we have lorry above trailers
@@ -276,7 +298,7 @@ $temp = "";
             <!-- Page content -->
             <div id="page-content">
                 <!-- Table Styles Block -->
-                <div class="block full">
+                <div class="block full" id = "ajax-parent">
                     <div class="block-title">
                         <h2><span>Information shown only relates to FINAL reports’</span></h2>
                     </div>
@@ -327,7 +349,7 @@ $temp = "";
                                             <label for="company-filter">
                                                 Vehicles Filter
                                             </label>
-                                            <select name="last-filter" id="last-filter" class="form-control">
+                                            <select name="last-filter" id="last-filter" class="form-control" title="last-filter">
                                                 <option value="all" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="all") echo 'selected'; ?>>Show All</option>
                                                 <option value="last-4" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-4") echo 'selected'; ?>>Inspected In Last 4 weeks</option>
                                                 <option value="last-12" <?php if(isset($_POST["last-filter"]) && $_POST["last-filter"]=="last-12" || !isset($_POST["last-filter"])) echo 'selected'; ?>>Inspected In Last 12 weeks</option>
@@ -342,7 +364,7 @@ $temp = "";
                                     <div class="col-lg-2 col-md-6 col-xs-6">
                                         <div class="sf-company-filter search-group">
                                             <label for="psv-filter">Show Only PSVs?</label>
-                                            <input class="form-control" type="checkbox" name="psv-filter" value="1" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?>>
+                                            <input class="form-control" type="checkbox" name="psv-filter" value="1" <?php if(isset($_POST['psv-filter']) && $_POST['psv-filter'] == 1) { echo 'checked';}?> title="psv-filter">
                                         </div>
                                     </div>
                                     <!-- END OF FILTER FOR PSV -->
@@ -370,8 +392,6 @@ $temp = "";
                                         <button type="submit" class="btn btn-success">Search</button>
                                     </div>
                                 </div>
-
-<!--                                <div class="pull-right"></div>-->
                             </form>
                         </div>
                         <?php if(!empty($rows)) {?>
@@ -404,6 +424,8 @@ $temp = "";
                                                             $string = 'Motor Vehicle';
                                                         }elseif($data['type'] == 'trailer'){
                                                             $string = 'trailer';
+                                                        }else{
+                                                            $string = 'error';
                                                         }
                                                     ?>
                                                     <td colspan="<?php echo 2+$number_weeks?>" class = "table-divide"><strong><?php echo strtoupper($string);?></strong></td>
@@ -587,31 +609,28 @@ $temp = "";
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="tacho-icon"><span>T</span></div>
-<!--                                                    <i class="fa fa-sun-o fa-stack-1x tacho-icon"></i>-->
-                                                </span>
+                                                </div>
                                             </a>
                                             Tachograph Changed.
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
-<!--                                                    <i class="fa fa-eyedropper fa-stack-1x oil-icon"></i>-->
-                                                        <div class ="oil-icon"><span>O</span></div>
-                                                </span>
+                                                    <div class ="oil-icon"><span>O</span></div>
+                                                </div>
                                             </a>
                                             Oil Changed.
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
-<!--                                                    <i class="fa fa-filter fa-stack-1x engine-icon"></i>-->
-                                                        <div class ="engine-icon"><span>E</span></div>
-                                                </span>
+                                                    <div class ="engine-icon"><span>E</span></div>
+                                                </div>
                                             </a>
                                             Filter Changed.
                                         </td>
@@ -623,30 +642,30 @@ $temp = "";
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-success">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="tacho-icon"><span>T</span></div>
-                                                </span>
+                                                </div>
                                             </a>
                                             Tachograph Changed.
                                         </td>
 
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-success">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
-                                                        <div class ="oil-icon"><span>O</span></div>
-                                                </span>
+                                                    <div class ="oil-icon"><span>O</span></div>
+                                                </div>
                                             </a>
                                             Oil Changed.
                                         </td>
 
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-success">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="engine-icon"><span>E</span></div>
-                                                </span>
+                                                </div>
                                             </a>
                                             Filter Changed.
                                         </td>
@@ -659,30 +678,30 @@ $temp = "";
 
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-warning">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="tacho-icon"><span>T</span></div>
-                                                </span>
+                                                </div>
                                             </a>
                                             Tachograph Changed.
                                         </td>
 
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-warning">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="oil-icon"><span>O</span></div>
-                                                </span>
+                                                </div>
                                             </a>
                                             Oil Changed.
                                         </td>
 
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-warning">
-                                                <span class="fa-stack fa-1x">
+                                                <div class="fa-stack fa-1x">
                                                     <i class="fa fa-wrench" aria-hidden="true"></i>
                                                     <div class ="engine-icon"><span>E</span></div>
-                                                </span>
+                                                </div>
                                             </a>
                                             Filter Changed.
                                         </td>
@@ -711,11 +730,5 @@ $temp = "";
 </div>
 <!-- END Page Wrapper -->
 
-
-
-
-
 <?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/footer.php"); ?>
-<script>
-    $('[data-toggle="tooltip"]').tooltip({html: true});
-</script>
+

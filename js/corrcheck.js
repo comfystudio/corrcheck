@@ -12,6 +12,9 @@
 	  surveyDate.hide();
 	}).data('datepicker');
 
+
+    $('[data-toggle="tooltip"]').tooltip({html: true});
+
 	/* Show / Hide extra emails on company page */
 	
 	
@@ -30,9 +33,8 @@
             type: 'POST',
             data: $('#vehicle-dashboard-form').serialize()+'&direction=back',
             success: function(data){
-                parent = $('#ajax-dashboard').parent();
                 $('#ajax-dashboard').remove();
-                parent.append(data);
+                $('#ajax-parent').append(data);
                 dashboardBack();
                 dashboardForward();
                 $('[data-toggle="tooltip"]').tooltip({html: true});
@@ -49,9 +51,8 @@
             type: 'POST',
             data: $('#vehicle-dashboard-form').serialize()+'&direction=forward',
             success: function(data){
-                parent = $('#ajax-dashboard').parent();
                 $('#ajax-dashboard').remove();
-                parent.append(data);
+                $('#ajax-parent').append(data);
                 dashboardBack();
                 dashboardForward();
                 $('[data-toggle="tooltip"]').tooltip({html: true});
@@ -69,9 +70,8 @@
                 type: 'POST',
                 data: $('#vehicle-dashboard-form').serialize()+'&direction=back',
                 success: function(data){
-                    parent = $('#ajax-dashboard').parent();
                     $('#ajax-dashboard').remove();
-                    parent.append(data);
+                    $('#ajax-parent').append(data);
                     dashboardBack();
                     dashboardForward();
                 },
@@ -89,9 +89,8 @@
                 type: 'POST',
                 data: $('#vehicle-dashboard-form').serialize()+'&direction=forward',
                 success: function(data){
-                    parent = $('#ajax-dashboard').parent();
                     $('#ajax-dashboard').remove();
-                    parent.append(data);
+                    $('#ajax-parent').append(data);
                     dashboardBack();
                     dashboardForward();
                 },
