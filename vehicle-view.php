@@ -15,24 +15,15 @@ $vehicle_id = $_GET ["vehicle_id"];
 //Bounce user back if they don't have permission to view
 $user->check_vehicle_premission();
 
-
-//if ($user->user_role == "Customer") {
-//    $survey_check = survey_check($survey_id, $user->company_id, $db);
-//    echo $survey_check;
-//    if (!survey_check($survey_id, $user->company_id, $db)) {
-//        header("Location: report-management.php");
-//        die("Redirecting to report-management.php");  // critical!
-//    }
-//}
-
 // Get main vehicle details
 // Do DB Query
 $query = "
             SELECT
-                t1.*, t2.company_name, t3.username
+                t1.*, t2.company_name, t3.username, GROUP_CONCAT(DISTINCT t4.date separator ', ') as late_dates
             FROM tbl_vehicles t1
             LEFT JOIN tbl_companies t2 ON t1.company_id = t2.company_ID
             LEFT JOIN tbl_users t3 ON t1.user_id = t3.user_id
+            LEFT JOIN tbl_late_vehicles t4 ON t1.id = t4.vehicle_id
             WHERE t1.id = ".$vehicle_id."
         ";
 try {
@@ -224,7 +215,6 @@ foreach($surveys as $key => $survey){
             <h3 class="panel-title">Inspections</h3>
         </div>
         <div class="panel-body">
-            <?php //report_details($survey_id, $db); ?>
             <table class="survey-results lube-results">
                 <thead>
                     <tr>
@@ -233,7 +223,7 @@ foreach($surveys as $key => $survey){
                         <td class="hdr-dets-lube">Inspection By</td>
                         <td class="hdr-dets-lube">Oil Changed?</td>
                         <td class="hdr-dets-lube">Filter Changed?</td>
-                        <td class="hdr-dets-lube">Tachograph Checked?</td>
+                        <td class="hdr-dets-lube">Tachograph Calibrated?</td>
                         <td class="hdr-dets-lube">Status</td>
                         <td class="text-center"><i class="fa fa-flash"></i></td>
                     </tr>
@@ -286,6 +276,30 @@ foreach($surveys as $key => $survey){
             </table>
         </div>
     </div>
+
+    <?php if(isset($vehicle['late_dates']) && !empty($vehicle['late_dates'])){?>
+        <?php $late_dates = explode(',', $vehicle['late_dates']);?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Missed Inspections</h3>
+            </div>
+            <div class="panel-body">
+                <table class="survey-results lube-results">
+                    <thead>
+                    <tr>
+                        <td colspan="2" class="hdr-cond-lube text-center">Date</td>
+                    </tr>
+                    </thead>
+
+                    <?php foreach($late_dates as $late_date){ ?>
+                        <tr>
+                            <td class = "text-center"><a class = "btn btn-effect-ripple btn-sm btn-danger"><i class="fa fa-exclamation" aria-hidden="true"></i></a> <?php echo date('j F, Y', strtotime($late_date));?></td>
+                        </tr>
+                    <?php }?>
+                </table>
+            </div>
+        </div>
+    <?php }?>
 
 
 

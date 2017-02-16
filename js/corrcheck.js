@@ -281,11 +281,12 @@
 	$("#section-nav").on('click', 'a', function () {
         var error_count = -1;
 
-		// Go through each input in the first panel
+        // Go through each input in the first panel
 		$(".veh_dets input").each(function(){
             var thisVal = $(this).val();
             // go through each input field
-            if (thisVal == "") {
+            // - Seems we need to add exceptions for inputs we don't want validated here and in the above validate.
+            if (thisVal == "" && $(this).attr('id') != 'veh_dets_178') {
                 // If a field is empty increment the counter
                 //
                 error_count++;
@@ -299,11 +300,11 @@
 
 		}); // end each()	
 		if(error_count >= 1){
-			//alert("error count is greater than or equal to 1 | error count is "+error_count);
+            //alert("error count is greater than or equal to 1 | error count is "+error_count);
 			validate_veh_dets();
 
 		}else{
-			//alert("At the else clause");
+            //alert("At the else clause");
 			// ... ** we end up here
 			// do one last validation of everything
 			validate_veh_dets();
@@ -325,7 +326,7 @@
 		$( ".veh_dets input" ).each(function() {
             if (typeof $(this).attr('id') !== typeof undefined && $(this).attr('id') !== false) {
                 var thisID = $(this).attr('id');
-                $("#" + thisID).valid();
+                $("#"+thisID).valid();
             }
 		});
 	}
@@ -339,8 +340,7 @@
 	 * NOTE: This no longer used - code is 
 	 * contained within form validation section
 	 * ======================================== */
-	function navigate_panels(){		
-
+	function navigate_panels(){
 		// Show section based on navigation button clicked
 		$("#section-nav").on('click', 'a', function () {
 

@@ -109,11 +109,13 @@ if(strtotime($today) >= strtotime($start_date) && strtotime($today) <= strtotime
 $query = "
             SELECT
                 t1.*, t2.company_name, t2.service_interval as company_service_interval, t2.user_start as company_user_start,
-                t2.start_time as company_start_time, GROUP_CONCAT(t3.survey_ID separator ', ') as survey_ids,
+                t2.start_time as company_start_time, GROUP_CONCAT(DISTINCT t3.survey_ID separator ', ') as survey_ids,
+                GROUP_CONCAT(DISTINCT t4.date separator ', ') as late_dates,
                 MAX(t3.survey_date) as most_recent_survey".$select."
             FROM tbl_vehicles t1
             LEFT JOIN tbl_companies t2 ON t1.company_id = t2.company_ID
             LEFT JOIN tbl_surveys t3 ON t1.reg = t3.vehicle_reg
+            LEFT JOIN tbl_late_vehicles t4 ON t1.id = t4.vehicle_id
             WHERE t1.is_active = 1
                 ".$where."
             GROUP BY t1.id
@@ -122,9 +124,6 @@ $query = "
         ";
 try {
     // These two statements run the query against your database table.
-//    echo '<pre>';
-//    print_r($query);
-//    echo '</pre>';
     $stmt = $db->prepare($query);
     foreach ($paramArray as $key => $value){
         if(is_int($value)){
@@ -292,6 +291,17 @@ foreach($rows as $key => $row){
             $count++;
         }
     }
+
+    //IF we have missed schedules
+    if(isset($row['late_dates']) && !empty($row['late_dates'])){
+        $late_dates = explode(',', $row['late_dates']);
+        $count = 0;
+        foreach($late_dates as $late_date){
+            $rows[$key]['lates'][$count]['date'] = date('m/d/Y', strtotime($late_date));
+            $rows[$key]['lates'][$count]['date_weeks'] = datediffInWeeks($start_date, date('m/d/Y', strtotime($late_date)));
+            $count++;
+        }
+    }
 }
 
 //reverse array so we have lorry above trailers
@@ -316,7 +326,7 @@ $temp = "";
                 <!-- Table Styles Block -->
                 <div class="block full" id = "ajax-parent">
                     <div class="block-title">
-                        <h2><span>Information shown only relates to FINAL reports’</span></h2>
+                        <h2><span>Information shown only relates to FINAL reports</span></h2>
                     </div>
 
                     <!-- Table Styles Content -->
@@ -570,7 +580,7 @@ $temp = "";
                                                             <?php foreach($data['psvs'] as $key3 => $psv){?>
                                                                 <?php if($psv['date_weeks'] == $i && $psv['date_weeks'] > $today){?>
                                                                     <?php
-                                                                        $title_text = 'PSV FOR: '.$psv['date'];
+                                                                    $title_text = 'PSV FOR: '.date('d-M-Y', strtotime($psv['date']));
                                                                     ?>
                                                                     <a data-toggle="tooltip" title="<?php echo $title_text?>" class = "btn btn-effect-ripple btn-sm btn-info"><i class="fa fa-cog" aria-hidden="true"></i></a>
                                                                 <?php } ?>
@@ -583,13 +593,27 @@ $temp = "";
                                                             <?php foreach($data['schedules'] as $key4 => $schedule){?>
                                                                 <?php if($schedule['date_weeks'] == $i && $schedule['date_weeks'] > $today){?>
                                                                     <?php
-                                                                    $title_text = 'SCHEDULE FOR: '.$schedule['date'];
+                                                                    $title_text = 'SCHEDULE FOR: '.date('d-M-Y', strtotime($schedule['date']));
                                                                     ?>
                                                                     <a data-toggle="tooltip" title="<?php echo $title_text?>" class = "btn btn-effect-ripple btn-sm btn-primary"><i class="fa fa-calendar" aria-hidden="true"></i></a>
                                                                 <?php } ?>
                                                             <?php } ?>
                                                         <?php } ?>
                                                         <!-- END OF SCHEDULES BLOCK-->
+
+
+                                                        <!-- START OF MISSED BLOCK -->
+                                                        <?php if(isset($data['lates']) && !empty($data['lates'])){?>
+                                                            <?php foreach($data['lates'] as $late){?>
+                                                                <?php if($late['date_weeks'] == $i){?>
+                                                                    <?php
+                                                                    $title_text = 'MISSED SCHEDULE: '.date('d-M-Y', strtotime($late['date']));
+                                                                    ?>
+                                                                    <a data-toggle="tooltip" title="<?php echo $title_text?>" class = "btn btn-effect-ripple btn-sm btn-danger"><i class="fa fa-exclamation" aria-hidden="true"></i></a>
+                                                                <?php } ?>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        <!-- END OF MISSED BLOCK-->
                                                     </td>
                                                 <?php } ?>
                                             </tr>
@@ -621,7 +645,7 @@ $temp = "";
                                     <tr>
                                         <td><a class = "btn btn-effect-ripple btn-sm btn-danger"><span class="fa-stack fa-1x"><i class="fa fa-wrench" aria-hidden="true"></span></i></a></td>
                                         <td>
-                                            A PSV inspection has been carried out. You can click to read inspection.
+                                            A pre-PSV inspection has been carried out. You can click to read inspection.
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
@@ -630,7 +654,7 @@ $temp = "";
                                                     <div class ="tacho-icon"><span>T</span></div>
                                                 </div>
                                             </a>
-                                            Tachograph Changed.
+                                            Tachograph Calibrated
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
@@ -639,7 +663,7 @@ $temp = "";
                                                     <div class ="oil-icon"><span>O</span></div>
                                                 </div>
                                             </a>
-                                            Oil Changed.
+                                            Oil Changed
                                         </td>
                                         <td>
                                             <a class = "btn btn-effect-ripple btn-sm btn-danger">
@@ -648,7 +672,7 @@ $temp = "";
                                                     <div class ="engine-icon"><span>E</span></div>
                                                 </div>
                                             </a>
-                                            Filter Changed.
+                                            Filter Changed
                                         </td>
                                     </tr>
                                     <tr>
@@ -663,7 +687,7 @@ $temp = "";
                                                     <div class ="tacho-icon"><span>T</span></div>
                                                 </div>
                                             </a>
-                                            Tachograph Changed.
+                                            Tachograph Calibrated
                                         </td>
 
                                         <td>
@@ -673,7 +697,7 @@ $temp = "";
                                                     <div class ="oil-icon"><span>O</span></div>
                                                 </div>
                                             </a>
-                                            Oil Changed.
+                                            Oil Changed
                                         </td>
 
                                         <td>
@@ -683,7 +707,7 @@ $temp = "";
                                                     <div class ="engine-icon"><span>E</span></div>
                                                 </div>
                                             </a>
-                                            Filter Changed.
+                                            Filter Changed
                                         </td>
                                     </tr>
                                     <tr>
@@ -699,7 +723,7 @@ $temp = "";
                                                     <div class ="tacho-icon"><span>T</span></div>
                                                 </div>
                                             </a>
-                                            Tachograph Changed.
+                                            Tachograph Calibrated
                                         </td>
 
                                         <td>
@@ -709,7 +733,7 @@ $temp = "";
                                                     <div class ="oil-icon"><span>O</span></div>
                                                 </div>
                                             </a>
-                                            Oil Changed.
+                                            Oil Changed
                                         </td>
 
                                         <td>
@@ -719,8 +743,12 @@ $temp = "";
                                                     <div class ="engine-icon"><span>E</span></div>
                                                 </div>
                                             </a>
-                                            Filter Changed.
+                                            Filter Changed
                                         </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class = "btn btn-effect-ripple btn-sm btn-danger"><i class="fa fa-exclamation" aria-hidden="true"></i></a></td>
+                                        <td>This means a scheduled inspection was missed around this time.</td>
                                     </tr>
                                     <tr>
                                         <td><a class = "btn btn-effect-ripple btn-sm btn-info"><i class="fa fa-cog" aria-hidden="true"></i></a></td>
