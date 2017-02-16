@@ -544,7 +544,7 @@ class Survey {
 
                     <?php } // Vehicle Registration
                     elseif($question_id == 12){?>
-                        <select id="<?php echo $question_name; ?>" name="<?php echo $question_name; ?>" class="selectpicker" data-width="180px">
+                        <select id="<?php echo $question_name; ?>" name="<?php echo $question_name; ?>" class="selectpicker" data-live-search="true" data-width="180px">
                             <?php foreach($vehicles as $key => $vehicle){?>
                                 <option value="<?php echo $vehicle['reg'] ?>" <?php $this->isDetailSelected($question_name, $vehicle['reg']); ?> data-make="<?php echo $vehicle['make']?>" data-type="<?php echo $vehicle['type']?>"> <?php echo $vehicle['reg']?></option>
                             <?php } ?>

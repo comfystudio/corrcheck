@@ -209,7 +209,7 @@ function create_corrCheck_Vehicle_Details($db){	?>
         <?php }
 
         elseif($question_type == "Text"){ // Default text input ?>
-          <input type="text" class="form-control form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required>  
+          <input type="text" class="form-control form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required>
         <?php } 
 
         elseif($question_type == "Textarea"){ ?>          

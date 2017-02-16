@@ -271,7 +271,9 @@
 	// ===================================== //
 	
 	// Initialise jQuery Validate - main vehicle survey
-	$(".corrCheck_form").validate();
+	$(".corrCheck_form").validate(
+        {ignore: "#veh_dets_178"}
+    );
 
     $('.bs-searchbox').find('input').attr("id", "veh_dets_12");
 
@@ -281,18 +283,19 @@
 
 		// Go through each input in the first panel
 		$(".veh_dets input").each(function(){
-			var thisVal = $(this).val();
-			// go through each input field			
-			if (thisVal == ""){
-				// If a field is empty increment the counter
-				// 
-				error_count++;
-				
+            var thisVal = $(this).val();
+            // go through each input field
+            if (thisVal == "") {
+                // If a field is empty increment the counter
+                //
+                error_count++;
 
-				// The problem is that when all but one field are filled in and if there 
-				// was at least one error that was fixed then this is skipped and 
-				// does not validate that last field ** ...
-			}	 
+
+                // The problem is that when all but one field are filled in and if there
+                // was at least one error that was fixed then this is skipped and
+                // does not validate that last field ** ...
+            }
+
 
 		}); // end each()	
 		if(error_count >= 1){
@@ -322,7 +325,7 @@
 		$( ".veh_dets input" ).each(function() {
             if (typeof $(this).attr('id') !== typeof undefined && $(this).attr('id') !== false) {
                 var thisID = $(this).attr('id');
-                $("#"+thisID).valid();
+                $("#" + thisID).valid();
             }
 		});
 	}

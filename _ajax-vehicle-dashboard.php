@@ -26,7 +26,7 @@ if(isset($_POST['direction']) && !empty($_POST['direction'])){
             $_POST['end_date'] = strtotime ( '+4 weeks' , strtotime ( $_POST['end_date'] ) ) ;
             $_POST['end_date'] = date("d-m-Y", $_POST['end_date']);
         }else{
-            $_POST['start_date'] = date("d-m-Y");
+            $_POST['start_date'] = date("d-m-Y", strtotime("-9 weeks"));
             $_POST['end_date'] = date("d-m-Y", strtotime("+12 weeks"));
         }
     }
@@ -69,22 +69,36 @@ if(isset($_POST) && !empty($_POST['start_date']) && !empty($_POST['end_date'])){
 }
 
 // ADD filter if last-filter has been selected use that value else default to 2 weeks
+$select = '';
+$having = '';
 if(isset($_POST) && !empty($_POST['last-filter'])){
     switch ($_POST['last-filter']) {
         case 'last-4':
-            $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 4 WEEK)";
+            $where .= " AND t3.status_id = 3 AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 4 WEEK)";
             break;
         case 'last-12':
-            $where .= " AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            $where .= " AND t3.status_id = 3 AND t3.survey_date > DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
             break;
         case 'not-12':
             $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
             break;
         case 'due-4':
-            $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            $select .= ", DATEDIFF(DATE_ADD(CURDATE(), INTERVAL 4 WEEK ), MAX(t3.survey_date))/7 as DiffDate,
+                        CASE
+                            WHEN (t1.service_interval IS NOT NULL) THEN t1.service_interval
+                            WHEN (t2.service_interval IS NOT NULL) THEN t2.service_interval
+                            ELSE 10
+                        END true_service_interval";
+            $having .= "HAVING most_recent_survey IS NULL OR (most_recent_survey IS NOT NULL AND DiffDate % true_service_interval < 4)";
             break;
         case 'due-12':
-            $where .= " AND t3.survey_date < DATE_SUB(CURDATE(), INTERVAL 12 WEEK)";
+            $select .= ", DATEDIFF(DATE_ADD(CURDATE(), INTERVAL 12 WEEK ), MAX(t3.survey_date))/7 as DiffDate,
+                        CASE
+                            WHEN (t1.service_interval IS NOT NULL) THEN t1.service_interval
+                            WHEN (t2.service_interval IS NOT NULL) THEN t2.service_interval
+                            ELSE 10
+                        END true_service_interval";
+            $having .= "HAVING most_recent_survey IS NULL OR (most_recent_survey IS NOT NULL AND DiffDate % true_service_interval < 12)";
             break;
         default:
             $where .= "";
@@ -112,13 +126,15 @@ if(strtotime($today) >= strtotime($start_date) && strtotime($today) <= strtotime
 // Do DB Query
 $query = "
             SELECT
-                t1.*, t2.company_name, t2.service_interval as company_service_interval, GROUP_CONCAT(t3.survey_ID separator ', ') as survey_ids
+                t1.*, t2.company_name, t2.service_interval as company_service_interval, GROUP_CONCAT(t3.survey_ID separator ', ') as survey_ids,
+                MAX(t3.survey_date) as most_recent_survey".$select."
             FROM tbl_vehicles t1
             LEFT JOIN tbl_companies t2 ON t1.company_id = t2.company_ID
             LEFT JOIN tbl_surveys t3 ON t1.reg = t3.vehicle_reg
             WHERE t1.is_active = 1
-              ".$where."
+                 ".$where."
             GROUP BY t1.id
+                ".$having."
             ORDER BY type DESC
         ";
 try {
@@ -264,11 +280,8 @@ foreach($rows as $key => $row){
             $time_interval = $row['company_service_interval'];
         }
         // If the vehicle is not using a custom start date we try to use most recent inspection
-        if (isset($rows[$key]['surveys']) && !empty($rows[$key]['surveys'])) {
-            $array_keys = array_keys($rows[$key]['surveys']);
-            if (isset($array_keys) && !empty($array_keys)) {
-                $origin_date = date('Y-m-d', strtotime($rows[$key]['surveys'][$array_keys[0]]['date']));
-            }
+        if(isset($row['most_recent_survey']) && !empty($row['most_recent_survey'])){
+            $origin_date = $row['most_recent_survey'];
         } else {
             // If we don't have recent inspection we shall use psv date...think this is the best fallback
             $origin_date = $row['psv_date'];
