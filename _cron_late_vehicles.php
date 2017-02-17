@@ -1,6 +1,7 @@
 <?php
 // This script should be run via cron once a day. It will check if a vehicle has missed its scheduled inspection and if so will add this to the tbl_late_vehicles table.
-include($_SERVER["DOCUMENT_ROOT"] . "/inc/all-includes.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/inc/config.php");
+include(ROOT_PATH . "inc/conn.php");
 
 // Getting vehicles
 $query = "

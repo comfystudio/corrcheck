@@ -88,6 +88,12 @@
 
 <div class="app-col-main grid_12 alpha">
     <h2>Vehicle Management</h2>
+    <?php if (isset($_SESSION['flash_message']) && !empty($_SESSION['flash_message'])){?>
+        <div class="alert alert-success" role="alert">
+            <strong><?php echo $_SESSION['flash_message']; ?></strong>
+        </div>
+        <?php unset($_SESSION['flash_message']); ?>
+    <?php }?>
     <?php
         if(isset($_GET['sort']) && !empty($_GET['sort'])) {
             $pages = new Pagination(20, '&sort=' . $_GET['sort'] . '&page', $total[0]['total']);
@@ -175,17 +181,17 @@
     <table class="table table-bordered table-striped">
 
         <thead>
-        <tr>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=reg">Vehicle Registration <?php if(isset($_GET['sort']) && $_GET['sort'] == 'reg'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=type">Type <?php if(isset($_GET['sort']) && $_GET['sort'] == 'type'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=make">Make <?php if(isset($_GET['sort']) && $_GET['sort'] == 'make'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=service">Service Interval <?php if(isset($_GET['sort']) && $_GET['sort'] == 'service'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=company">Company <?php if(isset($_GET['sort']) && $_GET['sort'] == 'company'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=user">User <?php if(isset($_GET['sort']) && $_GET['sort'] == 'user'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=psv">PSV Date <?php if(isset($_GET['sort']) && $_GET['sort'] == 'psv'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=inspection">Fixed Schedule? <?php if(isset($_GET['sort']) && $_GET['sort'] == 'inspection'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
-            <th class="text-center"><i class="fa fa-flash"></i></th>
-        </tr>
+            <tr>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=reg">Vehicle Registration <?php if(isset($_GET['sort']) && $_GET['sort'] == 'reg'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=type">Type <?php if(isset($_GET['sort']) && $_GET['sort'] == 'type'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=make">Make <?php if(isset($_GET['sort']) && $_GET['sort'] == 'make'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=service">Service Interval <?php if(isset($_GET['sort']) && $_GET['sort'] == 'service'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=company">Company <?php if(isset($_GET['sort']) && $_GET['sort'] == 'company'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=user">User <?php if(isset($_GET['sort']) && $_GET['sort'] == 'user'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=psv">PSV Date <?php if(isset($_GET['sort']) && $_GET['sort'] == 'psv'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th><a href="<?php echo BASE_URL; ?>vehicle-management.php?sort=inspection">Fixed Schedule? <?php if(isset($_GET['sort']) && $_GET['sort'] == 'inspection'){echo '<i class="fa fa-chevron-down" aria-hidden="true"></i>';}?></a></th>
+                <th class="text-center"><i class="fa fa-flash"></i></th>
+            </tr>
 
         </thead>
 
@@ -229,10 +235,16 @@
                         <a href="<?php echo BASE_URL; ?>edit_vehicle.php?vehicle_id=<?php echo $row["id"] ?>"
                            class="btn btn-warning">edit
                         </a>
+
                         <a href="<?php echo BASE_URL; ?>delete_vehicle.php?vehicle_id=<?php echo $row["id"] ?>"
                            class="btn btn-danger">delete
                         </a>
                     <?php } ?>
+                    <?php if($user->check_is_manager()){?>
+                        <a href="<?php echo BASE_URL; ?>transfer_vehicle.php?vehicle_id=<?php echo $row["id"] ?>"
+                           class="btn btn-success">transfer
+                        </a>
+                    <?php }?>
                 </td>
             </tr>
 
