@@ -240,11 +240,6 @@
                            class="btn btn-danger">delete
                         </a>
                     <?php } ?>
-                    <?php if($user->check_is_manager()){?>
-                        <a href="<?php echo BASE_URL; ?>transfer_vehicle.php?vehicle_id=<?php echo $row["id"] ?>"
-                           class="btn btn-success">transfer
-                        </a>
-                    <?php }?>
                 </td>
             </tr>
 
@@ -263,6 +258,9 @@
     <?php if($user->check_vehicle_premission()){?>
         <a href="<?php echo BASE_URL; ?>create_vehicle.php" class="btn btn-success">Create New Vehicle</a>
     <?php } ?>
+    <?php if($user->check_is_manager()){?>
+        <a href="<?php echo BASE_URL; ?>transfer_vehicle.php" class="btn btn-primary">Transfer a Vehicle</a>
+    <?php }?>
 
 </div><!-- app-col-main -->
 <?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/footer.php"); ?>
