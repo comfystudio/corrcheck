@@ -83,24 +83,25 @@ function create_corrCheck_Vehicle_Details($db){	?>
 	
 <?php
     // Need to get vehicles for Vehicle reg field
-    $query = "
-            SELECT
-                t1.reg, t1.make, t1.type
-            FROM tbl_vehicles t1
-            WHERE t1.is_active = 1 AND t1.company_id = 26
-            ORDER BY t1.reg ASC
-        ";
-    try {
-        // These two statements run the query against your database table.
-        $stmt = $db->prepare($query);
-        $stmt->execute();
-    } catch (PDOException $ex) {
-        // Note: On a production website, you should not output $ex->getMessage().
-        // It may provide an attacker with helpful information about your code.
-        die("Failed to run query: " . $ex->getMessage());
-    }
+//    $query = "
+//            SELECT
+//                t1.reg, t1.make, t1.type
+//            FROM tbl_vehicles t1
+//            WHERE t1.is_active = 1 AND t1.company_id = 26
+//            ORDER BY t1.reg ASC
+//        ";
+//    try {
+//        // These two statements run the query against your database table.
+//        $stmt = $db->prepare($query);
+//        $stmt->execute();
+//    } catch (PDOException $ex) {
+//        // Note: On a production website, you should not output $ex->getMessage().
+//        // It may provide an attacker with helpful information about your code.
+//        die("Failed to run query: " . $ex->getMessage());
+//    }
     // Finally, we can retrieve all of the found rows into an array using fetchAll
-    $vehicles = $stmt->fetchAll();
+    //$vehicles = $stmt->fetchAll();
+    $vehicles = array(0 => array('reg' => 'Select Company', 'type' => 'Select Company', 'make' => 'Select Company'));
 
   // where section_ID = 1 
 	try {

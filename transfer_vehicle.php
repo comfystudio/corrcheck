@@ -110,7 +110,7 @@
             //if no errors then proceed with creating clone of vehicle.
             if (empty($errorArray)) {
                 //We need to update the previous vehicle with a new reg
-                $new_reg = $vehicle['reg'] . '_' . $vehicle['company_id'];
+                $new_reg = $vehicle['reg'] . '_' . $_POST['company_id'];
 
                 $query = "
                     UPDATE tbl_vehicles
