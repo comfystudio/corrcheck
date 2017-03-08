@@ -117,3 +117,6 @@ ENGINE=InnoDB
 
 ALTER TABLE `tbl_late_vehicles`
 	ADD CONSTRAINT `FK_tbl_late_vehicles_tbl_vehicles` FOREIGN KEY (`vehicle_id`) REFERENCES `tbl_vehicles` (`id`) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `tbl_users`
+	ADD COLUMN `user_permission` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `dashboard_permission`;

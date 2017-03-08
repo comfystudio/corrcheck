@@ -28,6 +28,7 @@ class User_Form
     var $company_name;
     var $vehicle_permission;
     var $dashboard_permission;
+    var $user_permission;
     var $error_check;
 
     var $form_type; // options are "new" or "edit" only!
@@ -65,6 +66,7 @@ class User_Form
         $this->user_role = $this->userVarArray["user_role"];
         $this->vehicle_permission = $this->userVarArray['vehicle_permission'];
         $this->dashboard_permission = $this->userVarArray['dashboard_permission'];
+        $this->user_permission = $this->userVarArray['user_permission'];
 
         $this->userRolesArray = $this->getUserRoles();
         $this->companyNamesArray = $this->getCompanyNames();
@@ -242,6 +244,11 @@ class User_Form
             $this->dashboard_permission = $_POST['dashboard_permission'];
         }
 
+        //user_permission
+        if(isset($_POST['user_permission'])){
+            $this->user_permission = $_POST['user_permission'];
+        }
+
         /* ============================================================ */
         // STAGE 2: Secondary Checks 
         // NOTE - these are repeated in processEditUserForm()
@@ -356,7 +363,8 @@ class User_Form
                     password, 
                     salt,
                     vehicle_permission,
-                    dashboard_permission
+                    dashboard_permission,
+                    user_permission
                 ) VALUES ( 
                     :username,
                     :first_name,
@@ -369,7 +377,8 @@ class User_Form
                     :password, 
                     :salt,
                     :vehicle_permission,
-                    :dashboard_permission
+                    :dashboard_permission,
+                    :user_permission
                 ) 
             ";
 
@@ -406,7 +415,8 @@ class User_Form
                 ':password' => $password,
                 ':salt' => $salt,
                 ':vehicle_permission' => $_POST['vehicle_permission'],
-                ':dashboard_permission' => $_POST['dashboard_permission']
+                ':dashboard_permission' => $_POST['dashboard_permission'],
+                ':user_permission' => $_POST['user_permission']
             );
 
             try {
@@ -521,7 +531,8 @@ class User_Form
                 ':company_id' => $this->company_id,
                 ':user_id' => $this->user_id,
                 ':vehicle_permission' => $this->vehicle_permission,
-                ':dashboard_permission' => $this->dashboard_permission
+                ':dashboard_permission' => $this->dashboard_permission,
+                ':user_permission' => $this->user_permission
             );
 
             // If the user is changing their password, then we need parameter values
@@ -545,7 +556,8 @@ class User_Form
                 user_role_id = :user_role_id,
                 company_id = :company_id,
                 vehicle_permission = :vehicle_permission,
-                dashboard_permission = :dashboard_permission
+                dashboard_permission = :dashboard_permission,
+                user_permission = :user_permission
       ";
 
             // If the user is changing their password, then we extend the SQL query
@@ -781,6 +793,21 @@ class User_Form
                                 <input type="checkbox" class="form-control form-control" name="dashboard_permission"
                                        id="dashboard_permission"
                                        value="1" <?php if (isset($this->dashboard_permission) && $this->dashboard_permission == 1) {
+                                    echo 'checked';
+                                } ?>/>
+                            </div>
+                        </div>
+
+                        <input type="hidden" class="form-control form-control" name="user_permission" id="user_permission"
+                               value="0"/>
+
+                        <div class="question_row cf form-group">
+                            <label for="user_permission" class="col-sm-3 control-label">User Permission:</label>
+
+                            <div class="col-sm-4">
+                                <input type="checkbox" class="form-control form-control" name="user_permission"
+                                       id="user_permission"
+                                       value="1" <?php if (isset($this->user_permission) && $this->user_permission == 1) {
                                     echo 'checked';
                                 } ?>/>
                             </div>

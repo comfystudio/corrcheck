@@ -160,6 +160,33 @@
         });
     });
 
+    $( ".toggle-user-permission" ).click(function() {
+        var state = $(this).data("state");
+        var id = $(this).data("id");
+        if(state == 1){
+            $(this).data("state", 2);
+            $(this).find($(".fa")).removeClass('fa-check').addClass('fa-times');
+            $(this).removeClass('btn-success').addClass('btn-danger');
+            state = 2;
+        }else{
+            $(this).data("state", 1);
+            $(this).find($(".fa")).removeClass('fa-times').addClass('fa-check');
+            $(this).removeClass('btn-danger').addClass('btn-success');
+            state = 1;
+        }
+        $.ajax({
+            url: '_ajax-toggle-user-permission.php',
+            type: 'POST',
+            data: { state: state, id: id},
+            success: function(){
+
+            },
+            error: function(){
+                alert('failure');
+            }
+        });
+    });
+
     /** ======================================================================================
      * create-report.php / edit-report.php. show / hide psv and comments based on selection
      * ====================================================================================== */

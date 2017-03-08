@@ -334,7 +334,7 @@ $temp = "";
                         <div class="row">
                             <form class="form-wrap" method="post" action="" id = "vehicle-dashboard-form">
                                 <div class = "row">
-                                    <?php if ($user->user_role == "Manager"){?>
+                                    <?php if ($user->user_role == "Manager" || $user->user_role == "Garage"){?>
                                         <div class="col-lg-3 col-md-6 col-xs-6">
                                             <div class="sf-company-filter search-group">
                                                 <label for="company-filter">
@@ -394,6 +394,10 @@ $temp = "";
                                         </div>
                                     </div>
                                     <!-- END OF FILTER FOR PSV -->
+
+                                    <?php if ($user->user_role == "Customer"){?>
+                                        <div class="col-lg-6 col-md-6 col-xs-6"></div>
+                                    <?php } ?>
 
                                     <div class="col-lg-1 col-md-1 col-xs-6">
                                         <a href = "<?php echo BASE_URL; ?>vehicle-dashboard.php" class="btn btn-primary">Reset</a>

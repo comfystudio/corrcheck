@@ -34,6 +34,7 @@ class Config_User {
 	var $company_name;
     var $vehicle_permission;
     var $dashboard_permission;
+    var $user_permission;
 
 	// Required for pages
 	var $edit_mode;
@@ -85,6 +86,7 @@ class Config_User {
 			$this->company_name = "";
             $this->vehicle_permission = "";
             $this->dashboard_permission = "";
+            $this->user_permission = "";
 
 
    		}elseif($this->edit_mode == "post_create"){  			
@@ -143,6 +145,7 @@ class Config_User {
 	  $this->company_id = $row["company_id"];
       $this->vehicle_permission = $row['vehicle_permission'];
       $this->dashboard_permission = $row['dashboard_permission'];
+      $this->user_permission = $row['user_permission'];
 
 	}
 
@@ -161,6 +164,7 @@ class Config_User {
 	  	$this->company_id = $post_array["company"];
         $this->vehicle_permission = $post_array['vehicle_permission'];
         $this->dashboard_permission = $post_array['dashboard_permission'];
+        $this->user_permission = $post_array['user_permission'];
 
 	}
 
@@ -180,6 +184,7 @@ class Config_User {
 		$this->userVarArray["user_role"] = $this->user_role;
         $this->userVarArray['vehicle_permission'] = $this->vehicle_permission;
         $this->userVarArray['dashboard_permission'] = $this->dashboard_permission;
+        $this->userVarArray['user_permission'] = $this->user_permission;
 
 	}
 
