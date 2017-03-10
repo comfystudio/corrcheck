@@ -39,13 +39,17 @@ try {
 $vehicle = $stmt->fetch();
 
 // We need to get surveys for the vehicle
+$where = "";
+if($user->user_role != "Manager"){
+    $where = " AND t1.company_ID = ".$user->company_id."";
+}
 $query = "
             SELECT
                 t1.*, t2.username, t3.status_name
             FROM tbl_surveys t1
                 LEFT JOIN tbl_users t2 ON t1.completed_by_user_ID = t2.user_id
                 LEFT JOIN tbl_survey_statuses t3 ON t1.status_id = t3.status_id
-            WHERE t1.vehicle_reg = '".$vehicle['reg']."'
+            WHERE t1.vehicle_reg = '".$vehicle['reg']."' ".$where."
             ORDER BY t1.survey_date DESC
         ";
 try {

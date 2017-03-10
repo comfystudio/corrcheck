@@ -79,13 +79,13 @@ class User_Form
 
     function getUserRoles()
     {
-
         try {
             $results = $this->db->query("
 	      SELECT
 	        user_role_id,
 	        role
 	      FROM tbl_user_roles
+	      WHERE tbl_user_roles.user_role_id >= ".$_SESSION['user']['user_role_id']."
 	      ;               
 	      ");
         } catch (Exception $e) {
@@ -109,14 +109,13 @@ class User_Form
 
     function getCompanyNames()
     {
-
         try {
             $results = $this->db->query("
         SELECT
           company_ID,
           company_name
         FROM tbl_companies
-        ;               
+        ;
         ");
         } catch (Exception $e) {
             echo "Data could not be retrieved from the database.";

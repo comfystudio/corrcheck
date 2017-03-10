@@ -49,7 +49,7 @@
                             <?php  echo $pending_row["invoice_num"]; ?>
                         </td>
 						<td>
-							<?php  echo $pending_row["survey_date"]; ?>
+							<?php  echo date('j F, Y', strtotime($pending_row["survey_date"])); ?>
 						</td>
 						<td>
                             <?php echo '<a href = "edit_company.php?company_id='.$pending_row['company_ID'].'" style = "color:#428bca;">'.$pending_row["company_name"].'</a>'; ?>

@@ -49,7 +49,7 @@
                             <?php  echo $saved_row["invoice_num"]; ?>
                         </td>
 						<td>
-							<?php  echo $saved_row["survey_date"]; ?>
+							<?php  echo date('j F, Y', strtotime($saved_row["survey_date"])); ?>
 						</td>
 						<td>
                             <?php echo '<a href = "edit_company.php?company_id='.$saved_row['company_ID'].'" style = "color:#428bca;">'.$saved_row["company_name"].'</a>'; ?>
