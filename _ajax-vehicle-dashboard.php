@@ -6,7 +6,13 @@ function datediffInWeeks($date1, $date2)
     if($date1 > $date2) return datediffInWeeks($date2, $date1);
     $first = DateTime::createFromFormat('m/d/Y', $date1);
     $second = DateTime::createFromFormat('m/d/Y', $date2);
-    return ceil($first->diff($second)->days/7);
+    //return ceil($first->diff($second)->days/7);
+
+    if($second->format('D') === 'Mon'){
+        return ceil($first->diff($second)->days/7)+1;
+    }else{
+        return ceil($first->diff($second)->days/7);
+    }
 }
 
 $paramArray = array();
@@ -26,7 +32,7 @@ if(isset($_POST['direction']) && !empty($_POST['direction'])){
             $_POST['end_date'] = strtotime ( '+4 weeks' , strtotime ( $_POST['end_date'] ) ) ;
             $_POST['end_date'] = date("d-m-Y", $_POST['end_date']);
         }else{
-            $_POST['start_date'] = date("d-m-Y", strtotime("-9 weeks"));
+            $_POST['start_date'] = date("d-m-Y", strtotime("-8 weeks"));
             $_POST['end_date'] = date("d-m-Y", strtotime("+12 weeks"));
         }
     }
@@ -59,11 +65,13 @@ if(isset($_POST) && !empty($_POST['reg-search-input'])){
 
 // If the user has selected start and end date
 if(isset($_POST) && !empty($_POST['start_date']) && !empty($_POST['end_date'])){
-    $start_date = date("m/d/Y", strtotime($_POST['start_date']));
+    //$start_date = date("m/d/Y", strtotime($_POST['start_date']));
+    $start_date = date("m/d/Y", strtotime("monday this week", strtotime($_POST['start_date'])));
     $end_date = date("m/d/Y", strtotime($_POST['end_date']));
     $number_weeks = datediffInWeeks($start_date, $end_date);
 }else{
-    $start_date = date("m/d/Y", strtotime("-1 months"));
+    //$start_date = date("m/d/Y", strtotime("-1 months"));
+    $start_date = date("m/d/Y", strtotime("monday this week", strtotime("-1 months")));
     $end_date = date("m/d/Y", strtotime("+3 months"));
     $number_weeks = datediffInWeeks($start_date, $end_date);
 }
@@ -437,7 +445,7 @@ $temp = "";
                                 $class = "";
                             }
                         ?>
-                        <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
+                        <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('d-M-Y', strtotime($start_date."+".($i-1)." week")));?></th>
                     <?php } ?>
                 </tr>
                 </thead>
@@ -591,7 +599,7 @@ $temp = "";
                                 <!-- START OF SCHEDULES BLOCK -->
                                 <?php if(isset($data['schedules']) && !empty($data['schedules'])){?>
                                     <?php foreach($data['schedules'] as $key4 => $schedule){?>
-                                        <?php if($schedule['date_weeks'] == $i && $schedule['date_weeks'] > $today){?>
+                                        <?php if($schedule['date_weeks'] == $i && $schedule['date_weeks'] >= $today){?>
                                             <?php
                                             $title_text = 'SCHEDULE FOR: '.date('d-M-Y', strtotime($schedule['date']));
                                             ?>

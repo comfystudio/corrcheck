@@ -7,7 +7,12 @@ function datediffInWeeks($date1, $date2)
     if($date1 > $date2) return datediffInWeeks($date2, $date1);
     $first = DateTime::createFromFormat('m/d/Y', $date1);
     $second = DateTime::createFromFormat('m/d/Y', $date2);
-    return ceil($first->diff($second)->days/7);
+
+    if($second->format('D') === 'Mon'){
+        return ceil($first->diff($second)->days/7)+1;
+    }else{
+        return ceil($first->diff($second)->days/7);
+    }
 }
 
 $paramArray = array();
@@ -40,13 +45,14 @@ if(isset($_POST) && !empty($_POST['reg-search-input'])){
 
 // If the user has selected start and end date
 if(isset($_POST) && !empty($_POST['start_date']) && !empty($_POST['end_date'])){
-    $start_date = date("m/d/Y", strtotime($_POST['start_date']));
+    $start_date = date("m/d/Y", strtotime("monday this week", strtotime($_POST['start_date'])));
     $end_date = date("m/d/Y", strtotime($_POST['end_date']));
     $number_weeks = datediffInWeeks($start_date, $end_date);
 }else{
-    $start_date = date("m/d/Y", strtotime("-9 weeks"));
+    $start_date = date("m/d/Y", strtotime("monday this week", strtotime("-8 weeks")));
     $end_date = date("m/d/Y", strtotime("+8 weeks"));
     $number_weeks = datediffInWeeks($start_date, $end_date);
+
 }
 
 // ADD filter if last-filter has been selected use that value else default to 2 weeks
@@ -310,7 +316,7 @@ $rows = array_reverse($rows);
 //echo '<pre>';
 //print_r($rows);
 //echo '</pre>';
-
+//
 //echo '<pre>';
 //print_r($surveys);
 //echo '</pre>';
@@ -441,7 +447,7 @@ $temp = "";
                                                     $class = "";
                                                 }
                                             ?>
-                                            <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('Y-M-d', strtotime($start_date."+".($i-1)." week")));?></th>
+                                            <th class = "dashboard-table-row text-center <?php echo $class?>"><?php echo str_replace('-', '<br/>', date('d-M-Y', strtotime($start_date."+".($i-1)." week")));?></th>
                                         <?php } ?>
                                     </tr>
                                     </thead>
@@ -595,7 +601,7 @@ $temp = "";
                                                         <!-- START OF SCHEDULES BLOCK -->
                                                         <?php if(isset($data['schedules']) && !empty($data['schedules'])){?>
                                                             <?php foreach($data['schedules'] as $key4 => $schedule){?>
-                                                                <?php if($schedule['date_weeks'] == $i && $schedule['date_weeks'] > $today){?>
+                                                                <?php if($schedule['date_weeks'] == $i && $schedule['date_weeks'] >= $today){?>
                                                                     <?php
                                                                     $title_text = 'SCHEDULE FOR: '.date('d-M-Y', strtotime($schedule['date']));
                                                                     ?>
