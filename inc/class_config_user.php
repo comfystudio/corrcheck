@@ -35,6 +35,7 @@ class Config_User {
     var $vehicle_permission;
     var $dashboard_permission;
     var $user_permission;
+    var $signature;
 
 	// Required for pages
 	var $edit_mode;
@@ -87,6 +88,7 @@ class Config_User {
             $this->vehicle_permission = "";
             $this->dashboard_permission = "";
             $this->user_permission = "";
+            $this->signature = "";
 
 
    		}elseif($this->edit_mode == "post_create"){  			
@@ -146,6 +148,7 @@ class Config_User {
       $this->vehicle_permission = $row['vehicle_permission'];
       $this->dashboard_permission = $row['dashboard_permission'];
       $this->user_permission = $row['user_permission'];
+      $this->signature = $row['signature'];
 
 	}
 
@@ -165,6 +168,11 @@ class Config_User {
         $this->vehicle_permission = $post_array['vehicle_permission'];
         $this->dashboard_permission = $post_array['dashboard_permission'];
         $this->user_permission = $post_array['user_permission'];
+        if(isset($_FILES['signature']) && !empty($_FILES['signature'])){
+            $this->signature = $_FILES['signature']['name'];
+        }else{
+            $this->signature = null;
+        }
 
 	}
 
@@ -185,6 +193,7 @@ class Config_User {
         $this->userVarArray['vehicle_permission'] = $this->vehicle_permission;
         $this->userVarArray['dashboard_permission'] = $this->dashboard_permission;
         $this->userVarArray['user_permission'] = $this->user_permission;
+        $this->userVarArray['signature'] = $this->signature;
 
 	}
 

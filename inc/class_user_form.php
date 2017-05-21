@@ -30,6 +30,7 @@ class User_Form
     var $dashboard_permission;
     var $user_permission;
     var $error_check;
+    var $signature;
 
     var $form_type; // options are "new" or "edit" only!
 
@@ -67,6 +68,7 @@ class User_Form
         $this->vehicle_permission = $this->userVarArray['vehicle_permission'];
         $this->dashboard_permission = $this->userVarArray['dashboard_permission'];
         $this->user_permission = $this->userVarArray['user_permission'];
+        $this->signature = $this->userVarArray['signature'];
 
         $this->userRolesArray = $this->getUserRoles();
         $this->companyNamesArray = $this->getCompanyNames();
@@ -248,6 +250,13 @@ class User_Form
             $this->user_permission = $_POST['user_permission'];
         }
 
+        //signature
+        if(!isset($_FILES) || empty($_FILES['signature']['name'])){
+            $_POST['signature'] = null;
+        }else{
+            $this->uploadFile($_FILES);
+        }
+
         /* ============================================================ */
         // STAGE 2: Secondary Checks 
         // NOTE - these are repeated in processEditUserForm()
@@ -363,7 +372,8 @@ class User_Form
                     salt,
                     vehicle_permission,
                     dashboard_permission,
-                    user_permission
+                    user_permission,
+                    signature
                 ) VALUES ( 
                     :username,
                     :first_name,
@@ -377,7 +387,8 @@ class User_Form
                     :salt,
                     :vehicle_permission,
                     :dashboard_permission,
-                    :user_permission
+                    :user_permission,
+                    :signature
                 ) 
             ";
 
@@ -415,7 +426,8 @@ class User_Form
                 ':salt' => $salt,
                 ':vehicle_permission' => $_POST['vehicle_permission'],
                 ':dashboard_permission' => $_POST['dashboard_permission'],
-                ':user_permission' => $_POST['user_permission']
+                ':user_permission' => $_POST['user_permission'],
+                ':signature' => $_POST['signature']
             );
 
             try {
@@ -517,6 +529,11 @@ class User_Form
             $salt = null;
         }
 
+        //check if we have new signature
+        if(isset($_FILES) && !empty($_FILES['signature']['name'])){
+            $this->uploadFile($_FILES);
+        }
+
         if ($this->error_check === false) {
 
             // Initial query parameter values
@@ -531,7 +548,8 @@ class User_Form
                 ':user_id' => $this->user_id,
                 ':vehicle_permission' => $this->vehicle_permission,
                 ':dashboard_permission' => $this->dashboard_permission,
-                ':user_permission' => $this->user_permission
+                ':user_permission' => $this->user_permission,
+                ':signature' => $this->signature
             );
 
             // If the user is changing their password, then we need parameter values
@@ -556,7 +574,8 @@ class User_Form
                 company_id = :company_id,
                 vehicle_permission = :vehicle_permission,
                 dashboard_permission = :dashboard_permission,
-                user_permission = :user_permission
+                user_permission = :user_permission,
+                signature = :signature
       ";
 
             // If the user is changing their password, then we extend the SQL query
@@ -592,6 +611,31 @@ class User_Form
 
     } // close function processUserForm()
 
+    /**
+     * UploadFile
+     * This method handles the upload and moving of files
+     * @param array $files is the $_FILES
+     */
+    public function uploadFile($files){
+        // upload file
+        try {
+            if(isset($files['signature'])){
+                $file = new Ps2_Upload(ROOT_PATH.'/img/signatures/', 'signature', true);
+                $file->addPermittedTypes(array(
+                        'image/png', 'image/jpeg', 'image/gif',
+                    )
+                );
+                $file->setMaxSize(83886080);
+                $file->move();
+                $_POST['signature'] = $file->getFilenames()[0];
+
+                return $file->getMessages();
+            }
+        } catch (Exception $e) {
+            return $this->_view->error[] = $e->getMessage();
+        }
+    }
+
 
     function renderUserForm()
     {
@@ -618,7 +662,7 @@ class User_Form
             <?php } ?>
 
             <form class="corrCheck_form form-horizontal" role="form" method="post"
-                  action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>'>
+                  action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>' enctype="multipart/form-data">
 
                 <fieldset class="create_user rep-section">
 
@@ -752,12 +796,32 @@ class User_Form
                                             value="<?php echo $company_id; ?>" <?php $this->isSelected($company_id, $this->company_id); ?>><?php echo $company_name; ?></option>
 
                                     <?php endforeach; ?>
-
                                 </select>
-
                             </div>
-
                         </div>
+
+                        <?php if(isset($this->signature) && !empty($this->signature)){?>
+                            <div class="question_row cf form-group">
+                                <label for="current-signature" class="col-sm-3 control-label">Current Signature:</label>
+
+                                <div class="col-sm-4">
+                                    <img src="/img/signatures/<?php echo $this->signature?>" alt="<?php echo $this->signature?>" width="120px" height="120px">
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <div class="question_row cf form-group">
+                            <label for="signature" class="col-sm-3 control-label">Upload Signature:</label>
+
+                            <div class="col-sm-4">
+                                <input type="file" name="signature" id="signature" class="form-control form-control">
+                                <?php if(isset($this->signature) && !empty($this->signature)){?>
+                                    <span class = "help-block">Note: Uploading a new Signature will remove the previous one.</span>
+                                <?php } ?>
+                            </div>
+                        </div>
+
+
                         <!-- close section-questions -->
 
                         <?php if ($this->form_type == "edit"): ?>
@@ -812,7 +876,7 @@ class User_Form
                             </div>
                         </div>
                 </fieldset>
-                <button id="submit" type="submit" value="Register" name="submit" class="btn btn-primary"/>Update User</button>
+                <button id="submit" type="submit" value="Register" name="submit" class="btn btn-primary"/><?php if ($this->form_type == "edit"){ echo 'Update User'; }else{ echo 'Create User';} ?></button>
 
             </form>
 

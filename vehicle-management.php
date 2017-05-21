@@ -9,6 +9,7 @@
     //Checking if we have $_GET['company-filter'] we do same as with post basically
     if(isset($_GET) && !empty($_GET['company-filter']) && $_GET['company-filter'] != 'search-all'){
         $_GET['company-filter'] = format_string($_GET['company-filter']);
+        $_POST['company-filter'] = format_string($_GET['company-filter']);
         $where .= " AND t1.company_id = ".$_GET['company-filter'];
     }
 
@@ -24,10 +25,24 @@
         $where .= " AND t1.reg LIKE '%".$_POST['reg-search-input']."%'";
     }
 
+    //Adding filter if user has used search filter on GET reg-search-input
+    if(isset($_GET) && !empty($_GET['rego-search-input'])){
+        $_GET['rego-search-input'] = format_string($_GET['rego-search-input']);
+        $_POST['reg-search-input'] = format_string($_GET['rego-search-input']);
+        $where .= " AND t1.reg LIKE '%".$_GET['rego-search-input']."%'";
+    }
+
     //Adding filter if user has used vehicle type filter
     if(isset($_POST) && !empty($_POST['vehicle-filter']) && $_POST['vehicle-filter'] != 'search-all'){
         $_POST['vehicle-filter'] = format_string($_POST['vehicle-filter']);
         $where .= " AND t1.type = '".$_POST['vehicle-filter']."'";
+    }
+
+    //Adding filter if user has used search filter on GET vehicle-filter
+    if(isset($_GET) && !empty($_GET['vehicle-filter']) && $_GET['vehicle-filter'] != 'search-all'){
+        $_GET['vehicle-filter'] = format_string($_GET['vehicle-filter']);
+        $_POST['vehicle-filter'] = format_string($_GET['vehicle-filter']);
+        $where .= " AND t1.type = '".$_GET['vehicle-filter']."'";
     }
 
     //Working out if we have sort and then order the data
@@ -97,6 +112,11 @@
     <?php
         if(isset($_GET['sort']) && !empty($_GET['sort'])) {
             $pages = new Pagination(20, '&sort=' . $_GET['sort'] . '&page', $total[0]['total']);
+        }elseif(isset($_POST) && !empty($_POST)){
+            if($_POST['company-filter'] == 'search-all'){
+                $_POST['company-filter'] = null;
+            }
+            $pages = new Pagination(20, '&company-filter=' . $_POST['company-filter'] . '&rego-search-input=' . $_POST['reg-search-input'] . '&vehicle-filter=' . $_POST['vehicle-filter'] . '&page', $total[0]['total']);
         }else{
             $pages = new Pagination(20, '&page', $total[0]['total']);
         }
