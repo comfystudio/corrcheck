@@ -1,22 +1,19 @@
 <?php include($_SERVER["DOCUMENT_ROOT"] . "/inc/all-includes.php"); ?>
-
 <?php
-    // If no $_GET vars are passed
+    //If no $_GET vars are passed
     if (empty($_GET)) {
         // redirect
         header("Location: report-management.php");
-
         die("Redirecting to report-management.php");  // critical!
-
     }
 
     // Get ID of survey
     $survey_id = $_GET ["surveyid"];
 
-    // Customer Checks
-    // 1st we need to check to see if the current user is a customer. If so we must then ensure that the survey id being passed
-    // belongs to the company ID of the customer
-    // If it does then we will allow the page to load else we will redirect to report-listing.php
+//     Customer Checks
+//     1st we need to check to see if the current user is a customer. If so we must then ensure that the survey id being passed
+//     belongs to the company ID of the customer
+//     If it does then we will allow the page to load else we will redirect to report-listing.php
 
     if($user->user_role == "Customer"){
         $survey_check = survey_check($survey_id, $user->company_id, $db);;
@@ -55,7 +52,7 @@
     // Finally, we can retrieve all of the found rows into an array using fetchAll
     $surveys = $stmt->fetchAll();
 
-    //We need to work out if oil change / filter change and tachograph has been changed....Have to loop through cause of mad Database
+//    //We need to work out if oil change / filter change and tachograph has been changed....Have to loop through cause of mad Database
     foreach($surveys as $key => $survey) {
         $query = "
                 SELECT
@@ -282,28 +279,28 @@
     }else{
         $surveys[0]['psv'] = "No";
     }
-
     //Now we build our PDF output
-    require_once(ROOT_PATH.'/inc/mpdf/mpdf.php');
+    require_once($_SERVER["DOCUMENT_ROOT"].'/inc/mpdf/mpdf.php');
     $mpdf = new mPDF();
     $mpdf->showImageErrors = true;
     $mpdf->defaultfooterline = 0;
     $mpdf->defaultheaderline = 0;
     $mpdf->setAutoTopMargin = 'stretch';
-    $stylesheet = file_get_contents(ROOT_PATH.'/css/pdf.css');
+    $stylesheet = file_get_contents($_SERVER["DOCUMENT_ROOT"].'/css/pdf.css');
+    $mpdf->WriteHTML($stylesheet,1);
     $mpdf->setHeader(
         '
         <div style="overflow: hidden; min-height: 400px; display: block;">
             <table style="overflow: hidden; min-height: 400px; display: block;">
                 <tr>
-                    <td><img src = "'.ROOT_PATH.'/img/corr-brothers-logo.png" width="80px"></td>
+                    <td><img src = "'.$_SERVER["DOCUMENT_ROOT"].'/img/corr-brothers-logo.png" width="80px"></td>
                     <td class = "bold text-right" style = "vertical-align:bottom;">Page {PAGENO} of {nb}</td>
                 </tr>
             </table>
 
-            <div class = "underline" style="padding-top:12px; clear:both; margin-top:12px;"></div>
+            <div class = "underline" style="clear:both; margin-top:12px;"></div>
 
-            <table class = "header" style="overflow: hidden; min-height: 400px; display: block;">
+            <table class = "header" style="min-height: 400px; max-height: 400px;">
                 <tr>
                     <td class = "bold">Survey ID</td>
                     <td>'.$surveys[0]['survey_ID'].'</td>
@@ -343,37 +340,42 @@
 
                     <td class = "bold">Odometer Reading</td>
                     <td>'.$surveys[0]['odo_reading'].' km</td>
-
-                    <td class = "bold">Pre-service Remarks</td>
-                    <td>'.$surveys[0]['pre_service_remarks'].'</td>
                 </tr>
+
+                <tr>
+                    <td class = "bold">Pre-service Remarks</td>
+                    <td colspan = "5">'.$surveys[0]['pre_service_remarks'].'</td>
+                </tr>
+
+                <tr>
+                    <td class = "bold">Report Details/Notes</td>
+                    <td colspan = "5">'.$surveys[0]['notes_parts_list'].'</td>
+                </tr>
+
             </table>
         </div>
 
-        <div class = "underline clear" style="padding-top:12px; clear:both; margin-top:12px;"></div>
+        <div class = "underline clear" style="clear:both;"></div>
         '
     );
-
-
-    $mpdf->WriteHTML($stylesheet,1);
     //Break Preformance AND Tyre Thread
     $mpdf->WriteHTML(' <div class = "clear"></div>');
     $mpdf->SetColumns(2);
-    $mpdf->WriteHTML('<h3 class = "text-centre">Brake Performance</h3>');
+    $mpdf->WriteHTML('<h4 class = "text-centre">Brake Performance</h4>');
     $mpdf->WriteHTML('<table class = "border" style="border-collapse:collapse;">');
         $mpdf->WriteHTML('<tr>');
             $mpdf->WriteHTML('<td>&nbsp;</td>');
             $mpdf->WriteHTML('<td colspan="2" class = "text-centre">');
-                $mpdf->WriteHTML('<span class = "font-10 bold">Service Break (IM: 71)</span>');
+                $mpdf->WriteHTML('<span class = "font-10 bold">Service Break</span>');
             $mpdf->WriteHTML('</td>');
 
             $mpdf->WriteHTML('<td colspan="2" class = "text-centre">');
-                $mpdf->WriteHTML('<span class = "font-10 bold">Parking Break (IM: 72)</span>');
+                $mpdf->WriteHTML('<span class = "font-10 bold">Parking Break</span>');
             $mpdf->WriteHTML('</td>');
         $mpdf->WriteHTML('</tr>');
 
         $mpdf->WriteHTML('<tr>');
-            $mpdf->WriteHTML('<td>&nbsp;</td>');
+            $mpdf->WriteHTML('<td>IM: 71, 72</td>');
             $mpdf->WriteHTML('<td class = "text-centre">');
                 $mpdf->WriteHTML('<span class = "font-10">DEC(%)</span>');
             $mpdf->WriteHTML('</td>');
@@ -451,21 +453,21 @@
         }
     $mpdf->WriteHTML('</table>');
 
-    $mpdf->WriteHTML('<h3 class = "text-centre">Tyre Thread</h3>');
+    $mpdf->WriteHTML('<h4 class = "text-centre">Tyre Thread</h4>');
     $mpdf->WriteHTML('<table class = "border" style ="border-collapse:collapse;">');
         $mpdf->WriteHTML('<tr>');
             $mpdf->WriteHTML('<td>&nbsp;</td>');
             $mpdf->WriteHTML('<td colspan="2" class = "text-centre">');
-                $mpdf->WriteHTML('<span class = "font-10 bold">Near Side (IM: 8)</span>');
+                $mpdf->WriteHTML('<span class = "font-10 bold">Near Side</span>');
             $mpdf->WriteHTML('</td>');
 
             $mpdf->WriteHTML('<td colspan="2" class = "text-centre">');
-                $mpdf->WriteHTML('<span class = "font-10 bold">Off Side (IM: 8)</span>');
+                $mpdf->WriteHTML('<span class = "font-10 bold">Off Side</span>');
             $mpdf->WriteHTML('</td>');
         $mpdf->WriteHTML('</tr>');
 
         $mpdf->WriteHTML('<tr>');
-            $mpdf->WriteHTML('<td>&nbsp;</td>');
+            $mpdf->WriteHTML('<td>IM: 8</td>');
             $mpdf->WriteHTML('<td class = "text-centre">');
                 $mpdf->WriteHTML('<span class = "font-10">Outside</span>');
             $mpdf->WriteHTML('</td>');
@@ -548,7 +550,7 @@
             $mpdf->WriteHTML('</td>');
 
             $mpdf->WriteHTML('<td>');
-                $mpdf->WriteHTML('<span class = "block-red bold">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class = "font-10"> = Significant Defect </span>');
+                $mpdf->WriteHTML('<span class = "block-red bold">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class = "font-10"> = Significant Defect</span>');
             $mpdf->WriteHTML('</td>');
         $mpdf->WriteHTML('</tr>');
     $mpdf->WriteHTML('</table>');
@@ -998,15 +1000,15 @@
     $mpdf->WriteHTML('</table>');
 
     $mpdf->SetColumns(1);
-        $mpdf->WriteHTML('<div class = "underline clear" style="clear:both; margin-bottom: 20px;"></div>');
+        $mpdf->WriteHTML('<div class = "underline clear" style="clear:both;"></div>');
     $mpdf->SetColumns(2);
-    $mpdf->WriteHTML('<pagebreak />');
+//    $mpdf->WriteHTML('<pagebreak />');
 
     //Signature tables
     $mpdf->WriteHTML('<table style ="border-collapse:collapse; border: 1px solid #000000; margin-top: -4px; padding-top: -4px;">');
         $mpdf->WriteHTML('<tr>');
             $mpdf->WriteHTML('<td class = "bold text-center" style ="border-bottom: 1px solid black;">');
-                $mpdf->WriteHTML('<span class = "bold">Inspected By: '.$surveys[0]['username'].'</span>');
+                $mpdf->WriteHTML('<span class = "bold">Inspected by: '.$surveys[0]['username'].' on '.date("d/m/Y", strtotime($surveys[0]["survey_date"])).'</span>');
             $mpdf->WriteHTML('</td>');
         $mpdf->WriteHTML('</tr>');
 
@@ -1026,7 +1028,7 @@
     $mpdf->WriteHTML('<table style ="border-collapse:collapse; border: 1px solid #000000;">');
         $mpdf->WriteHTML('<tr>');
             $mpdf->WriteHTML('<td class = "bold text-center" style ="border-bottom: 1px solid black;">');
-                $mpdf->WriteHTML('<span class = "bold">Foreman: '.$surveys[0]['foreman_username'].'</span>');
+                $mpdf->WriteHTML('<span class = "bold">Approved by  '.$surveys[0]['foreman_username'].' on '.date("d/m/Y", strtotime($surveys[0]["date_last_update"])).'</span>');
             $mpdf->WriteHTML('</td>');
         $mpdf->WriteHTML('</tr>');
 
@@ -1043,8 +1045,7 @@
         $mpdf->WriteHTML('</tr>');
     $mpdf->WriteHTML('</table>');
 
-    //var_dump($surveys);die;
-    //$mpdf->debug = true;
+    $mpdf->debug = true;
     $mpdf->Output();
     exit;
 

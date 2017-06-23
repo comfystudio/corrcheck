@@ -511,8 +511,8 @@ class Survey {
 			    ?>
     
 			    <div class="question_row cf form-group">
-			      <label for="<?php echo $question_name; ?>"  class="col-sm-3 control-label"><?php echo $question_text; ?>:</label>
-			      <div class="col-sm-4">
+                  <label for="<?php echo $question_name; ?>"  class="col-sm-3 control-label"><?php echo $question_text; ?>:</label>
+                  <div class="col-sm-4">
 
 			      	<?php
 
@@ -571,8 +571,7 @@ class Survey {
 			        <?php }
 
 			        elseif($question_type == "Number"){ // If question is a number field ?>
-			          <input type="input" class="form-control number-input form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required value="<?php $this->getValue($question_name); ?>">                  
-			        
+			          <input type="input" class="form-control number-input form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required value="<?php $this->getValue($question_name); ?>">
 			        <?php }
 
 			        elseif($question_type == "Dropdown"){ // If question is a dropdown field ?>  
@@ -588,7 +587,7 @@ class Survey {
 			        <?php }
 
 			        elseif($question_type == "Text"){ // Default text input ?>
-			          <input type="text" class="form-control form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required value="<?php $this->getValue($question_name); ?>">  
+			          <input type="text" class="form-control form-control" maxlength="50" name="<?php echo $question_name ?>" id="<?php echo $question_name ?>" required value="<?php $this->getValue($question_name); ?>">
 			        <?php } 
 
 			        elseif($question_type == "Textarea"){ ?>

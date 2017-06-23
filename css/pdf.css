@@ -53,6 +53,14 @@ table.header td{
     padding:4px;
 }
 
+.header td{
+    font-size: 10px;
+}
+
+.border td {
+    font-size: 10px;
+}
+
 .block-green{
     padding:12px;
     background-color: green;

@@ -383,22 +383,35 @@
 	} // end navigate_panels	
 
 
+
+    if($('#veh_dets_11').length){
+        if($('#veh_dets_11').val() == 'trailer'){
+            $('#veh_dets_16').parent().parent().remove();
+            $('#veh_dets_17').parent().parent().hide();
+        }
+    }
+
 	/** ======================================== 
 	 * Hide/Show questions based on vehicle type choice	 
 	 * ======================================== */
 	
 	$("#veh_dets_11").change(function() {
 		var veh_type = $(this).val();
+        var veh_dets_16 ='<div class="question_row cf form-group"><label for="veh_dets_16" class="col-sm-3 control-label">Odometer Reading:</label><div class="col-sm-4"> <input type="input" class="form-control number-input form-control" maxlength="50" name="veh_dets_16" id="veh_dets_16" required="" aria-required="true"> </div></div>';
 		
 		// If trailer
 		if(veh_type == "trailer"){			
 			$(".not_trailers").hide("fast");
+            $('#veh_dets_16').parent().parent().remove()
+            $('#veh_dets_17').parent().parent().hide();
 		}
 
 		// If lorry (show all)
 		if(veh_type == "lorry"){			
 			$(".not_trailers").show("fast");
-		}
+            $("#veh_dets_15").parent().parent().after(veh_dets_16);
+            $('#veh_dets_17').parent().parent().show();
+        }
 		
 	});
 
